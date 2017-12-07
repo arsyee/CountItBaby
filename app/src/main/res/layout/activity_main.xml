@@ -34,6 +34,11 @@
             android:id="@+id/solution3"
             style="@style/SolutionButtonStyle"
             android:text="3" />
+        <Button
+            android:id="@+id/solution4"
+            style="@style/SolutionButtonStyle"
+            android:visibility="gone"
+            android:text="4" />
 
     </LinearLayout>
 
