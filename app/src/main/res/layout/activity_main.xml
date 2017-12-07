@@ -22,15 +22,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
+        <Button
             android:id="@+id/solution1"
             style="@style/SolutionButtonStyle"
             android:text="1" />
-        <TextView
+        <Button
             android:id="@+id/solution2"
             style="@style/SolutionButtonStyle"
             android:text="2" />
-        <TextView
+        <Button
             android:id="@+id/solution3"
             style="@style/SolutionButtonStyle"
             android:text="3" />
