@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < mIcons.size(); ++i) {
             if (i < newSolution) {
                 mIcons.get(i).setVisibility(View.VISIBLE);
-                int iconCenterX = mRandom.nextInt(mCanvasWidth);
-                int iconCenterY = mRandom.nextInt(mCanvasHeight);
+                int iconCenterX = mRandom.nextInt(mCanvasWidth-mIconWidth)+mIconWidth/2;
+                int iconCenterY = mRandom.nextInt(mCanvasHeight-mIconHeight)+mIconHeight/2;
                 Log.d(TAG, "Moving icon " + (i+1) + " to " + iconCenterX + "," + iconCenterY);
                 mIcons.get(i).setPadding(iconCenterX - mIconWidth / 2,
                         iconCenterY - mIconHeight / 2,
