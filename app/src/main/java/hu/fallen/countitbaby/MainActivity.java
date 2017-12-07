@@ -7,7 +7,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Random;
+
 public class MainActivity extends AppCompatActivity {
+
+    public Random mRandom = new Random();
 
     TextView mQuestion;
 
@@ -16,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
     Button mSolution3;
 
     Toast mSolutionToast = null;
+
+    int numberOfOptions = 3;
 
     private class SolutionOnClickListener implements View.OnClickListener {
         private final int mNumber;
@@ -28,15 +34,22 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             if (mSolutionToast != null) mSolutionToast.cancel();
+            boolean solutionOK = Integer.toString(mNumber).equals(mQuestion.getText().toString());
             StringBuilder toastText = new StringBuilder("Button clicked: ").append(mNumber);
-            if (Integer.toString(mNumber).equals(mQuestion.getText().toString())) {
+            if (solutionOK) {
                 toastText.append(" - OK");
             } else {
                 toastText.append(" - try again!");
             }
             mSolutionToast = Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_LONG);
             mSolutionToast.show();
+            if (solutionOK) newRandomQuestion();
         }
+    }
+
+    private void newRandomQuestion() {
+        int newSolution = mRandom.nextInt(3)+1;
+        mQuestion.setText(Integer.toString(newSolution));
     }
 
     @Override
@@ -53,5 +66,7 @@ public class MainActivity extends AppCompatActivity {
         mSolution1.setOnClickListener(new SolutionOnClickListener(1));
         mSolution2.setOnClickListener(new SolutionOnClickListener(2));
         mSolution3.setOnClickListener(new SolutionOnClickListener(3));
+
+        newRandomQuestion();
     }
 }
