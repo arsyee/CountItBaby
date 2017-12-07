@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Count it, baby!</string>
+    <string name="image_to_be_counted">image to be counted</string>
 </resources>

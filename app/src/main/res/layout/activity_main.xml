@@ -9,6 +9,7 @@
     tools:context="hu.fallen.countitbaby.MainActivity">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_canvas"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -21,6 +22,13 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             android:textSize="72sp"/>
+
+        <ImageView
+            android:id="@+id/i_icon1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher_round"
+            android:contentDescription="@string/image_to_be_counted"/>
     </android.support.constraint.ConstraintLayout>
 
     <LinearLayout

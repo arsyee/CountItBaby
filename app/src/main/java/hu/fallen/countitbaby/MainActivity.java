@@ -1,9 +1,13 @@
 package hu.fallen.countitbaby;
 
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,9 +28,16 @@ public class MainActivity extends AppCompatActivity {
     int mCountSolutions;
     List<Button> mSolutionButtons;
 
+    ConstraintLayout mCanvas;
+    int mCanvasWidth;
+    int mCanvasHeight;
+    ImageView mIcon;
+    int mIconWidth;
+    int mIconHeight;
+
     Toast mSolutionToast = null;
 
-    int numberOfOptions = 9;
+    int numberOfOptions = 1;
 
     private class SolutionOnClickListener implements View.OnClickListener {
         private final int mNumber;
@@ -55,6 +66,14 @@ public class MainActivity extends AppCompatActivity {
     private void newRandomQuestion() {
         int newSolution = mRandom.nextInt(numberOfOptions)+1;
         mQuestion.setText(String.format(Locale.getDefault(),"%d", newSolution));
+
+        int iconCenterX = mRandom.nextInt(mCanvasWidth);
+        int iconCenterY = mRandom.nextInt(mCanvasHeight);
+        Log.d(TAG, "Moving icon to "+iconCenterX+","+iconCenterY);
+        mIcon.setPadding(iconCenterX-mIconWidth/2,
+                         iconCenterY-mIconHeight/2,
+                        mCanvasWidth-(iconCenterX+mIconWidth/2),
+                      mCanvasHeight-(iconCenterY+mIconHeight/2));
     }
 
     @Override
@@ -78,6 +97,21 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        newRandomQuestion();
+        mCanvas = findViewById(R.id.cl_canvas);
+        mIcon = findViewById(R.id.i_icon1);
+
+        mCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                mCanvasWidth = mCanvas.getWidth();
+                mCanvasHeight = mCanvas.getHeight();
+                Log.d(TAG, "Canvas dimensions: " + mCanvasWidth + "x" + mCanvasHeight);
+                mIconWidth = mIcon.getWidth();
+                mIconHeight = mIcon.getHeight();
+                Log.d(TAG, "Icon dimensions: " + mIconWidth + "x" + mIconHeight);
+                newRandomQuestion();
+            }
+        });
     }
 }
