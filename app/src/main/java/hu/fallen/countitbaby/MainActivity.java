@@ -4,24 +4,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String TAG = MainActivity.class.toString();
     public Random mRandom = new Random();
 
     TextView mQuestion;
 
-    Button mSolution1;
-    Button mSolution2;
-    Button mSolution3;
+    LinearLayout mSolutionContainer;
+    int mCountSolutions;
+    List<Button> mSolutionButtons;
 
     Toast mSolutionToast = null;
 
-    int numberOfOptions = 3;
+    int numberOfOptions = 9;
 
     private class SolutionOnClickListener implements View.OnClickListener {
         private final int mNumber;
@@ -48,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void newRandomQuestion() {
-        int newSolution = mRandom.nextInt(3)+1;
-        mQuestion.setText(Integer.toString(newSolution));
+        int newSolution = mRandom.nextInt(numberOfOptions)+1;
+        mQuestion.setText(String.format(Locale.getDefault(),"%d", newSolution));
     }
 
     @Override
@@ -59,13 +64,19 @@ public class MainActivity extends AppCompatActivity {
 
         mQuestion = findViewById(R.id.question);
 
-        mSolution1 = findViewById(R.id.solution1);
-        mSolution2 = findViewById(R.id.solution2);
-        mSolution3 = findViewById(R.id.solution3);
-
-        mSolution1.setOnClickListener(new SolutionOnClickListener(1));
-        mSolution2.setOnClickListener(new SolutionOnClickListener(2));
-        mSolution3.setOnClickListener(new SolutionOnClickListener(3));
+        mSolutionContainer = findViewById(R.id.ll_solution_container);
+        mCountSolutions = mSolutionContainer.getChildCount();
+        mSolutionButtons = new ArrayList<>(mCountSolutions);
+        for (int i = 0; i < mCountSolutions; ++i) {
+            Button button = (Button) mSolutionContainer.getChildAt(i);
+            int solution = i+1;
+            mSolutionButtons.add(button);
+            button.setOnClickListener(new SolutionOnClickListener(solution));
+            button.setText(String.format(Locale.getDefault(),"%d", solution));
+            if (solution > numberOfOptions) {
+                button.setVisibility(View.GONE);
+            }
+        }
 
         newRandomQuestion();
     }
