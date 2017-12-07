@@ -31,13 +31,13 @@ public class MainActivity extends AppCompatActivity {
     ConstraintLayout mCanvas;
     int mCanvasWidth;
     int mCanvasHeight;
-    ImageView mIcon;
+    List<ImageView> mIcons;
     int mIconWidth;
     int mIconHeight;
 
     Toast mSolutionToast = null;
 
-    int numberOfOptions = 1;
+    int numberOfOptions = 5;
 
     private class SolutionOnClickListener implements View.OnClickListener {
         private final int mNumber;
@@ -67,13 +67,20 @@ public class MainActivity extends AppCompatActivity {
         int newSolution = mRandom.nextInt(numberOfOptions)+1;
         mQuestion.setText(String.format(Locale.getDefault(),"%d", newSolution));
 
-        int iconCenterX = mRandom.nextInt(mCanvasWidth);
-        int iconCenterY = mRandom.nextInt(mCanvasHeight);
-        Log.d(TAG, "Moving icon to "+iconCenterX+","+iconCenterY);
-        mIcon.setPadding(iconCenterX-mIconWidth/2,
-                         iconCenterY-mIconHeight/2,
-                        mCanvasWidth-(iconCenterX+mIconWidth/2),
-                      mCanvasHeight-(iconCenterY+mIconHeight/2));
+        for (int i = 0; i < mIcons.size(); ++i) {
+            if (i < newSolution) {
+                mIcons.get(i).setVisibility(View.VISIBLE);
+                int iconCenterX = mRandom.nextInt(mCanvasWidth);
+                int iconCenterY = mRandom.nextInt(mCanvasHeight);
+                Log.d(TAG, "Moving icon " + (i+1) + " to " + iconCenterX + "," + iconCenterY);
+                mIcons.get(i).setPadding(iconCenterX - mIconWidth / 2,
+                        iconCenterY - mIconHeight / 2,
+                        mCanvasWidth - (iconCenterX + mIconWidth / 2),
+                        mCanvasHeight - (iconCenterY + mIconHeight / 2));
+            } else {
+                mIcons.get(i).setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
@@ -98,7 +105,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mCanvas = findViewById(R.id.cl_canvas);
-        mIcon = findViewById(R.id.i_icon1);
+        mIcons = new ArrayList<>(mCountSolutions);
+        int imageViewCount = 0;
+        for (int i = 0; i < mCanvas.getChildCount(); ++i) {
+            View nextChild = mCanvas.getChildAt(i);
+            if (!(nextChild instanceof ImageView)) continue;
+            mIcons.add((ImageView) nextChild);
+            imageViewCount++;
+        }
+        if (imageViewCount != mCountSolutions) {
+            Log.e(TAG, "imageViewCount " + imageViewCount + "!= mCountSolutions " + mCountSolutions);
+        }
 
         mCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -107,8 +124,8 @@ public class MainActivity extends AppCompatActivity {
                 mCanvasWidth = mCanvas.getWidth();
                 mCanvasHeight = mCanvas.getHeight();
                 Log.d(TAG, "Canvas dimensions: " + mCanvasWidth + "x" + mCanvasHeight);
-                mIconWidth = mIcon.getWidth();
-                mIconHeight = mIcon.getHeight();
+                mIconWidth = mIcons.get(0).getWidth();
+                mIconHeight = mIcons.get(0).getHeight();
                 Log.d(TAG, "Icon dimensions: " + mIconWidth + "x" + mIconHeight);
                 newRandomQuestion();
             }
