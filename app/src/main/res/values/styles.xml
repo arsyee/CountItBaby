@@ -19,7 +19,7 @@
     <style name="CountableStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:src">@mipmap/ic_launcher_round</item>
+        <item name="android:src">@drawable/ic_pretzel</item>
         <item name="android:contentDescription">@string/image_to_be_counted</item>
     </style>
 </resources>

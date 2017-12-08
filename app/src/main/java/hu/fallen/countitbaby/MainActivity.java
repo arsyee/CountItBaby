@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
         int newSolution = mRandom.nextInt(numberOfOptions)+1;
         mQuestion.setText(String.format(Locale.getDefault(),"%d", newSolution));
 
+        int imageId = mRandom.nextBoolean() ? R.drawable.ic_house : R.drawable.ic_pretzel;
+
         List<CoordinateRandomizer.Dim> iconDims = new CoordinateRandomizer(mRandom,
                 new CoordinateRandomizer.Dim(mCanvasWidth, mCanvasHeight),
                 new CoordinateRandomizer.Dim(mIconWidth, mIconHeight)).getCoordinates(newSolution);
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
                         iconCenterY - mIconHeight / 2,
                         mCanvasWidth - (iconCenterX + mIconWidth / 2),
                         mCanvasHeight - (iconCenterY + mIconHeight / 2));
+                mIcons.get(i).setImageResource(imageId);
             } else {
                 mIcons.get(i).setVisibility(View.GONE);
             }
