@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.toString();
     public Random mRandom = new Random();
 
-    TextView mQuestion;
+    int mQuestion;
 
     LinearLayout mSolutionContainer;
     int mCountSolutions;
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             if (mSolutionToast != null) mSolutionToast.cancel();
-            boolean solutionOK = Integer.toString(mNumber).equals(mQuestion.getText().toString());
+            boolean solutionOK = mNumber == mQuestion;
             StringBuilder toastText = new StringBuilder("Button clicked: ").append(mNumber);
             if (solutionOK) {
                 toastText.append(" - OK");
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void newRandomQuestion() {
         int newSolution = mRandom.nextInt(numberOfOptions)+1;
-        mQuestion.setText(String.format(Locale.getDefault(),"%d", newSolution));
+        mQuestion = newSolution;
 
         int imageId = mRandom.nextBoolean() ? R.drawable.ic_house : R.drawable.ic_pretzel;
 
@@ -95,8 +95,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mQuestion = findViewById(R.id.question);
 
         mSolutionContainer = findViewById(R.id.ll_solution_container);
         mCountSolutions = mSolutionContainer.getChildCount();
