@@ -17,9 +17,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import hu.fallen.countitbaby.Helpers.CoordinateRandomizer;
+
 public class MainActivity extends AppCompatActivity {
 
-    public static final String TAG = MainActivity.class.toString();
+    private static final String TAG = MainActivity.class.toString();
     public Random mRandom = new Random();
 
     TextView mQuestion;
@@ -67,11 +69,14 @@ public class MainActivity extends AppCompatActivity {
         int newSolution = mRandom.nextInt(numberOfOptions)+1;
         mQuestion.setText(String.format(Locale.getDefault(),"%d", newSolution));
 
+        List<CoordinateRandomizer.Dim> iconDims = new CoordinateRandomizer(mRandom,
+                new CoordinateRandomizer.Dim(mCanvasWidth, mCanvasHeight),
+                new CoordinateRandomizer.Dim(mIconWidth, mIconHeight)).getCoordinates(newSolution);
         for (int i = 0; i < mIcons.size(); ++i) {
             if (i < newSolution) {
                 mIcons.get(i).setVisibility(View.VISIBLE);
-                int iconCenterX = mRandom.nextInt(mCanvasWidth-mIconWidth)+mIconWidth/2;
-                int iconCenterY = mRandom.nextInt(mCanvasHeight-mIconHeight)+mIconHeight/2;
+                int iconCenterX = iconDims.get(i).getX();
+                int iconCenterY = iconDims.get(i).getY();
                 Log.d(TAG, "Moving icon " + (i+1) + " to " + iconCenterX + "," + iconCenterY);
                 mIcons.get(i).setPadding(iconCenterX - mIconWidth / 2,
                         iconCenterY - mIconHeight / 2,
