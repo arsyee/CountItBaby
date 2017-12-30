@@ -1,10 +1,12 @@
-package hu.fallen.countitbaby.Helpers;
+package hu.fallen.countitbaby.helpers;
 
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import hu.fallen.countitbaby.model.Settings;
 
 public class CoordinateRandomizer {
 
@@ -14,35 +16,9 @@ public class CoordinateRandomizer {
 
     private static final String TAG = CoordinateRandomizer.class.toString();
 
-    public static class Dim {
-        int x;
-        int y;
+    private static final Random RANDOM = new Random();
 
-        public Dim(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public int getX() {
-            return x;
-        }
-
-        public int getY() {
-            return y;
-        }
-    }
-
-    private Random mRandom;
-    private Dim mCanvasDims;
-    private Dim mIconDims;
-
-    public CoordinateRandomizer(Random random, Dim canvasDimensions, Dim iconDimensions) {
-        mRandom = random;
-        mCanvasDims = canvasDimensions;
-        mIconDims = iconDimensions;
-    }
-
-    public List<Dim> getCoordinates(int newSolution) {
+    public static List<Dim> getCoordinates(int newSolution, Dim canvasDimensions, Dim iconDimensions) {
         int smallestCounter = 100;
         ArrayList<Dim> result = new ArrayList<>(newSolution);
         for (int i = 0; i < newSolution; ++i) {
@@ -50,12 +26,12 @@ public class CoordinateRandomizer {
             int iconCenterY;
             int counter = 100;
             outer: do {
-                iconCenterX = mRandom.nextInt(mCanvasDims.getX() - mIconDims.getX()) + mIconDims.getX() / 2;
-                iconCenterY = mRandom.nextInt(mCanvasDims.getY() - mIconDims.getY()) + mIconDims.getY() / 2;
+                iconCenterX = RANDOM.nextInt(canvasDimensions.getX() - iconDimensions.getX()) + iconDimensions.getX() / 2;
+                iconCenterY = RANDOM.nextInt(canvasDimensions.getY() - iconDimensions.getY()) + iconDimensions.getY() / 2;
                 Log.d(TAG, "Random coordinates for " + i + " to " + iconCenterX + "," + iconCenterY + " (" + counter + ")");
                 for (int j = 0; j < i; ++j) {
-                    if (Math.abs(iconCenterX-result.get(j).getX()) < mIconDims.getX() &&
-                            Math.abs(iconCenterY-result.get(j).getY()) < mIconDims.getY()) {
+                    if (Math.abs(iconCenterX-result.get(j).getX()) < iconDimensions.getX() &&
+                            Math.abs(iconCenterY-result.get(j).getY()) < iconDimensions.getY()) {
                         Log.d(TAG,"Collides with " + j);
                         continue outer;
                     }
@@ -67,5 +43,16 @@ public class CoordinateRandomizer {
         }
         Log.d(TAG, "Smallest counter: " + smallestCounter);
         return result;
+    }
+
+    public static int getSolution() {
+        int max = Settings.instance().max();
+        int min = Settings.instance().min();
+        int solution = RANDOM.nextInt(max - min + 1) + min;
+        return solution;
+    }
+
+    public static int getRandom(int bound) {
+        return RANDOM.nextInt(bound);
     }
 }

@@ -9,25 +9,21 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
-import hu.fallen.countitbaby.Helpers.CoordinateRandomizer;
+import hu.fallen.countitbaby.helpers.Dim;
+import hu.fallen.countitbaby.model.Canvas;
+import hu.fallen.countitbaby.model.Controls;
+import hu.fallen.countitbaby.model.Settings;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.toString();
 
-    // TODO Introduce MVC or MVVM to separate responsibilites
-    // TODO [Settings] Create SettingsActivity
-    // TODO [Settings]   -> upper and lower bounds for number of drawings
-    // TODO [Settings]   -> randomize button order
-    // TODO [Settings]   -> show only limited number of buttons
     // TODO [Layout] Improve layout management
     // TODO [Layout]   -> dynamic placement of result buttons (maybe a grid)
     // TODO [Layout]   -> place buttons before calculating image positions (resizing the button grid affects the canvas size)
@@ -41,24 +37,18 @@ public class MainActivity extends AppCompatActivity {
     // TODO [Visual]   -> Can we animate SVG?
     // TODO [Visual]   -> Moar drawings!
 
-    public Random mRandom = new Random();
+    Canvas mCanvas;
+    Controls mControls;
 
-    int mQuestion;
-
-    LinearLayout mSolutionContainer;
-    int mCountSolutions;
     List<Button> mSolutionButtons;
 
-    ConstraintLayout mCanvas;
-    int mCanvasWidth;
-    int mCanvasHeight;
+    ConstraintLayout mLayoutCanvas;
     List<ImageView> mIcons;
-    int mIconWidth;
-    int mIconHeight;
+
+    int[] mImageIds = new int[] { R.drawable.ic_house,
+                                  R.drawable.ic_pretzel };
 
     Toast mSolutionToast = null;
-
-    int numberOfOptions = 5;
 
     private class SolutionOnClickListener implements View.OnClickListener {
         private final int mNumber;
@@ -70,42 +60,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View view) {
-            if (mSolutionToast != null) mSolutionToast.cancel();
-            boolean solutionOK = mNumber == mQuestion;
-            StringBuilder toastText = new StringBuilder("Button clicked: ").append(mNumber);
-            if (solutionOK) {
-                toastText.append(" - OK");
+            if (mCanvas.checkSolution(mNumber)) {
+                showToast("Button clicked: " + mNumber + " - OK");
+                mCanvas.generateQuestion();
+                drawCanvas();
             } else {
-                toastText.append(" - try again!");
-            }
-            mSolutionToast = Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_LONG);
-            mSolutionToast.show();
-            if (solutionOK) newRandomQuestion();
-        }
-    }
-
-    private void newRandomQuestion() {
-        int newSolution = mRandom.nextInt(numberOfOptions)+1;
-        mQuestion = newSolution;
-
-        int imageId = mRandom.nextBoolean() ? R.drawable.ic_house : R.drawable.ic_pretzel;
-
-        List<CoordinateRandomizer.Dim> iconDims = new CoordinateRandomizer(mRandom,
-                new CoordinateRandomizer.Dim(mCanvasWidth, mCanvasHeight),
-                new CoordinateRandomizer.Dim(mIconWidth, mIconHeight)).getCoordinates(newSolution);
-        for (int i = 0; i < mIcons.size(); ++i) {
-            if (i < newSolution) {
-                mIcons.get(i).setVisibility(View.VISIBLE);
-                int iconCenterX = iconDims.get(i).getX();
-                int iconCenterY = iconDims.get(i).getY();
-                Log.d(TAG, "Moving icon " + (i+1) + " to " + iconCenterX + "," + iconCenterY);
-                mIcons.get(i).setPadding(iconCenterX - mIconWidth / 2,
-                        iconCenterY - mIconHeight / 2,
-                        mCanvasWidth - (iconCenterX + mIconWidth / 2),
-                        mCanvasHeight - (iconCenterY + mIconHeight / 2));
-                mIcons.get(i).setImageResource(imageId);
-            } else {
-                mIcons.get(i).setVisibility(View.GONE);
+                showToast("Button clicked: " + mNumber + " - try again!");
             }
         }
     }
@@ -115,25 +75,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSolutionContainer = findViewById(R.id.ll_solution_container);
-        mCountSolutions = mSolutionContainer.getChildCount();
+        LinearLayout solutionContainer = findViewById(R.id.ll_solution_container);
+        int mCountSolutions = solutionContainer.getChildCount();
         mSolutionButtons = new ArrayList<>(mCountSolutions);
         for (int i = 0; i < mCountSolutions; ++i) {
-            Button button = (Button) mSolutionContainer.getChildAt(i);
+            Button button = (Button) solutionContainer.getChildAt(i);
             int solution = i+1;
             mSolutionButtons.add(button);
             button.setOnClickListener(new SolutionOnClickListener(solution));
             button.setText(String.format(Locale.getDefault(),"%d", solution));
-            if (solution > numberOfOptions) {
-                button.setVisibility(View.GONE);
-            }
         }
 
-        mCanvas = findViewById(R.id.cl_canvas);
+        mLayoutCanvas = findViewById(R.id.cl_canvas);
         mIcons = new ArrayList<>(mCountSolutions);
         int imageViewCount = 0;
-        for (int i = 0; i < mCanvas.getChildCount(); ++i) {
-            View nextChild = mCanvas.getChildAt(i);
+        for (int i = 0; i < mLayoutCanvas.getChildCount(); ++i) {
+            View nextChild = mLayoutCanvas.getChildAt(i);
             if (!(nextChild instanceof ImageView)) continue;
             mIcons.add((ImageView) nextChild);
             imageViewCount++;
@@ -142,18 +99,53 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "imageViewCount " + imageViewCount + "!= mCountSolutions " + mCountSolutions);
         }
 
-        mCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        mLayoutCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                mCanvasWidth = mCanvas.getWidth();
-                mCanvasHeight = mCanvas.getHeight();
-                Log.d(TAG, "Canvas dimensions: " + mCanvasWidth + "x" + mCanvasHeight);
-                mIconWidth = mIcons.get(0).getWidth();
-                mIconHeight = mIcons.get(0).getHeight();
-                Log.d(TAG, "Icon dimensions: " + mIconWidth + "x" + mIconHeight);
-                newRandomQuestion();
+                mLayoutCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                Dim canvasDim = new Dim(mLayoutCanvas.getWidth(), mLayoutCanvas.getHeight());
+                Dim iconsDim = new Dim(mIcons.get(0).getWidth(), mIcons.get(0).getHeight());
+                mCanvas = new Canvas(canvasDim, iconsDim, mImageIds.length);
+                drawCanvas();
+                drawButtons();
             }
         });
+    }
+
+    private void drawButtons() {
+        for (int i = 0; i < mSolutionButtons.size(); ++i) {
+            if (i < Settings.instance().max()) {
+                mSolutionButtons.get(i).setVisibility(View.VISIBLE);
+            } else {
+                mSolutionButtons.get(i).setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void drawCanvas() {
+        for (int i = 0; i < mIcons.size(); ++i) {
+            moveImage(mIcons.get(i), mCanvas.getCoordinate(i), mCanvas.getIconsDim(), mImageIds[mCanvas.getImageId()]);
+        }
+    }
+
+    private void moveImage(ImageView imageView, Dim iconCoordinate, Dim iconDim, int imageId) {
+        if (iconCoordinate == null) {
+            imageView.setVisibility(View.INVISIBLE);
+            return;
+        }
+
+        imageView.setVisibility(View.VISIBLE);
+        Log.d(TAG, "Moving icon to " + iconCoordinate);
+        imageView.setPadding(iconCoordinate.getX() - iconDim.getX() / 2,
+                iconCoordinate.getY() - iconDim.getY() / 2, 0, 0);
+                // mCanvasWidth - (iconCoordinate.getX() + mIconWidth / 2),
+                // mCanvasHeight - (iconCoordinate.getY() + mIconHeight / 2));
+        imageView.setImageResource(imageId);
+    }
+
+    private void showToast(String msg) {
+        if (mSolutionToast != null) mSolutionToast.cancel();
+        mSolutionToast = Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG);
+        mSolutionToast.show();
     }
 }
