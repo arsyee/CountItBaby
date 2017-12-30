@@ -22,6 +22,25 @@ import hu.fallen.countitbaby.Helpers.CoordinateRandomizer;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.toString();
+
+    // TODO Introduce MVC or MVVM to separate responsibilites
+    // TODO [Settings] Create SettingsActivity
+    // TODO [Settings]   -> upper and lower bounds for number of drawings
+    // TODO [Settings]   -> randomize button order
+    // TODO [Settings]   -> show only limited number of buttons
+    // TODO [Layout] Improve layout management
+    // TODO [Layout]   -> dynamic placement of result buttons (maybe a grid)
+    // TODO [Layout]   -> place buttons before calculating image positions (resizing the button grid affects the canvas size)
+    // TODO [Layout]   -> lower limit for button size (should be easy to press)
+    // TODO [Visual] Polish
+    // TODO [Visual]   -> Have a background
+    // TODO [Visual]   -> Have music and sound effects for win and loose (should be possible to turn these off separately)
+    // TODO [Visual]   -> Animation for win and loose
+    // TODO [Visual]   -> Full-screen (sticky immersion) mode
+    // TODO [Visual]   -> Nicer button visuals
+    // TODO [Visual]   -> Can we animate SVG?
+    // TODO [Visual]   -> Moar drawings!
+
     public Random mRandom = new Random();
 
     int mQuestion;

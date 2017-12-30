@@ -8,6 +8,10 @@ import java.util.Random;
 
 public class CoordinateRandomizer {
 
+    // TODO Scale up/down images based on count
+    // TODO Improved algorithm to avoid overlaps
+    // TODO Increase maximum number of images to at least 20
+
     private static final String TAG = CoordinateRandomizer.class.toString();
 
     public static class Dim {
