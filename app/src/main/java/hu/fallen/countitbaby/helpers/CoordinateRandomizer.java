@@ -28,11 +28,11 @@ public class CoordinateRandomizer {
             outer: do {
                 iconCenterX = RANDOM.nextInt(canvasDimensions.getX() - iconDimensions.getX()) + iconDimensions.getX() / 2;
                 iconCenterY = RANDOM.nextInt(canvasDimensions.getY() - iconDimensions.getY()) + iconDimensions.getY() / 2;
-                Log.d(TAG, "Random coordinates for " + i + " to " + iconCenterX + "," + iconCenterY + " (" + counter + ")");
+                // Log.d(TAG, "Random coordinates for " + i + " to " + iconCenterX + "," + iconCenterY + " (" + counter + ")");
                 for (int j = 0; j < i; ++j) {
                     if (Math.abs(iconCenterX-result.get(j).getX()) < iconDimensions.getX() &&
                             Math.abs(iconCenterY-result.get(j).getY()) < iconDimensions.getY()) {
-                        Log.d(TAG,"Collides with " + j);
+                        // Log.d(TAG,"Collides with " + j);
                         continue outer;
                     }
                 }

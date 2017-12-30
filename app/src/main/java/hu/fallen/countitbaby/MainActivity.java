@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 import hu.fallen.countitbaby.helpers.Dim;
-import hu.fallen.countitbaby.model.Canvas;
-import hu.fallen.countitbaby.model.Controls;
-import hu.fallen.countitbaby.model.Settings;
+import hu.fallen.countitbaby.model.Game;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,8 +35,7 @@ public class MainActivity extends AppCompatActivity {
     // TODO [Visual]   -> Can we animate SVG?
     // TODO [Visual]   -> Moar drawings!
 
-    Canvas mCanvas;
-    Controls mControls;
+    Game mGame;
 
     List<Button> mSolutionButtons;
 
@@ -60,10 +57,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View view) {
-            if (mCanvas.checkSolution(mNumber)) {
+            if (mGame.checkSolution(mNumber)) {
                 showToast("Button clicked: " + mNumber + " - OK");
-                mCanvas.generateQuestion();
+                mGame.generateQuestion();
                 drawCanvas();
+                drawButtons();
             } else {
                 showToast("Button clicked: " + mNumber + " - try again!");
             }
@@ -105,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 mLayoutCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 Dim canvasDim = new Dim(mLayoutCanvas.getWidth(), mLayoutCanvas.getHeight());
                 Dim iconsDim = new Dim(mIcons.get(0).getWidth(), mIcons.get(0).getHeight());
-                mCanvas = new Canvas(canvasDim, iconsDim, mImageIds.length);
+                mGame = new Game(canvasDim, iconsDim, mImageIds.length);
                 drawCanvas();
                 drawButtons();
             }
@@ -114,17 +112,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void drawButtons() {
         for (int i = 0; i < mSolutionButtons.size(); ++i) {
-            if (i < Settings.instance().max()) {
-                mSolutionButtons.get(i).setVisibility(View.VISIBLE);
-            } else {
-                mSolutionButtons.get(i).setVisibility(View.GONE);
-            }
+            mSolutionButtons.get(i).setVisibility(mGame.isButtonVisible(i) ? View.VISIBLE : View.GONE);
         }
     }
 
     private void drawCanvas() {
         for (int i = 0; i < mIcons.size(); ++i) {
-            moveImage(mIcons.get(i), mCanvas.getCoordinate(i), mCanvas.getIconsDim(), mImageIds[mCanvas.getImageId()]);
+            moveImage(mIcons.get(i), mGame.getCoordinate(i), mGame.getIconsDim(), mImageIds[mGame.getImageId()]);
         }
     }
 

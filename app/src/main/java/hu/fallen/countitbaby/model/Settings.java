@@ -6,19 +6,38 @@ public class Settings {
     // TODO [Settings]   -> randomize button order
     // TODO [Settings]   -> show only limited number of buttons
 
+    // Settings will be hardcoded for now. I will implement SettingsActivity
+    // when the settings are more or less final.
+
+    public static final int MAXIMUM = 20;
+
+    private int lowerBound;
+    private int upperBound;
+    int showButtons;
+    private boolean randomizeButtons;
+
     private static final Settings INSTANCE = new Settings();
 
-    private Settings() {}
+    private Settings() {
+        reconfigure(1, 10, 6, true);
+    }
 
     public static Settings instance() {
         return INSTANCE;
     }
 
     public int min() {
-        return 1;
+        return lowerBound;
     }
 
     public int max() {
-        return 5;
+        return upperBound;
+    }
+
+    public void reconfigure(int lowerBound, int upperBound, int showButtons, boolean randomizeButtons) {
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+        this.showButtons = showButtons;
+        this.randomizeButtons = randomizeButtons;
     }
 }

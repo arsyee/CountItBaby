@@ -21,6 +21,17 @@
         <ImageView style="@style/CountableStyle" />
         <ImageView style="@style/CountableStyle" />
         <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
+        <ImageView style="@style/CountableStyle" />
     </android.support.constraint.ConstraintLayout>
 
     <LinearLayout
@@ -28,6 +39,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
+        <Button style="@style/SolutionButtonStyle" />
         <Button style="@style/SolutionButtonStyle" />
         <Button style="@style/SolutionButtonStyle" />
         <Button style="@style/SolutionButtonStyle" />

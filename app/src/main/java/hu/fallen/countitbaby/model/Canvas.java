@@ -16,10 +16,9 @@ import hu.fallen.countitbaby.helpers.Dim;
  *    - coordinates of the images drawn on the canvas
  */
 
-public class Canvas {
+class Canvas {
     private static final String TAG = Canvas.class.getCanonicalName();
 
-    // Dimensions
     private Dim mCanvasDim;
     private Dim mIconsDim;
 
@@ -29,35 +28,34 @@ public class Canvas {
     private int mImageCount;
     private int mImageId;
 
-    public Canvas(Dim canvasDim, Dim iconsDim, int imageCount) {
+    Canvas(Dim canvasDim, Dim iconsDim, int imageCount) {
         Log.d(TAG, "Canvas dimensions: " + canvasDim);
         Log.d(TAG, "Icon dimensions: " + iconsDim);
         mCanvasDim = canvasDim;
         mIconsDim = iconsDim;
         mImageCount = imageCount;
-        generateQuestion();
     }
 
-    public void generateQuestion() {
+    void generateQuestion() {
         mSolution = CoordinateRandomizer.getSolution();
         mImageId = CoordinateRandomizer.getRandom(mImageCount);
         mCoordinates = CoordinateRandomizer.getCoordinates(mSolution, mCanvasDim, mIconsDim);
     }
 
-    public Dim getCoordinate(int i) {
+    int getSolution() {
+        return mSolution;
+    }
+
+    Dim getCoordinate(int i) {
         if (i >= 0 && i < mCoordinates.size()) return mCoordinates.get(i);
         return null;
     }
 
-    public boolean checkSolution(int number) {
-        return number == mSolution;
-    }
-
-    public Dim getIconsDim() {
+    Dim getIconsDim() {
         return mIconsDim;
     }
 
-    public int getImageId() {
+    int getImageId() {
         return mImageId;
     }
 }
