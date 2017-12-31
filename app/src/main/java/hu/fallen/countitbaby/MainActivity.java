@@ -5,7 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -41,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
     List<Button> mSolutionButtons;
 
-    ConstraintLayout mLayoutCanvas;
     List<ImageView> mImages;
 
     int[] mImageIds = new int[] { R.drawable.ic_house,
@@ -76,37 +77,34 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         LinearLayout solutionContainer = findViewById(R.id.ll_solution_container);
-        int mCountSolutions = solutionContainer.getChildCount();
-        mSolutionButtons = new ArrayList<>(mCountSolutions);
-        for (int i = 0; i < mCountSolutions; ++i) {
-            Button button = (Button) solutionContainer.getChildAt(i);
-            int solution = i+1;
+        mSolutionButtons = new ArrayList<>(Settings.MAXIMUM);
+        for (int i = 0; i < Settings.MAXIMUM; ++i) {
+            Button button = new Button(this);
+            button.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
+            button.setGravity(Gravity.CENTER);
+            button.setOnClickListener(new SolutionOnClickListener(i+1));
+            button.setText(String.format(Locale.getDefault(),"%d", i+1));
+            solutionContainer.addView(button);
             mSolutionButtons.add(button);
-            button.setOnClickListener(new SolutionOnClickListener(solution));
-            button.setText(String.format(Locale.getDefault(),"%d", solution));
         }
 
-        mLayoutCanvas = findViewById(R.id.cl_canvas);
-        mImages = new ArrayList<>(mCountSolutions);
-        int imageViewCount = 0;
+        final ConstraintLayout layoutCanvas = findViewById(R.id.cl_canvas);
+        mImages = new ArrayList<>(Settings.MAXIMUM);
         for (int i = 0; i < Settings.MAXIMUM; ++i) {
             ImageView image = new ImageView(this);
             image.setBackgroundColor(0x11111111);
-            mLayoutCanvas.addView(image);
+            layoutCanvas.addView(image);
             mImages.add(image);
-            imageViewCount++;
-        }
-        if (imageViewCount != mCountSolutions) {
-            Log.e(TAG, "imageViewCount " + imageViewCount + "!= mCountSolutions " + mCountSolutions);
         }
 
-        mLayoutCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        layoutCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mLayoutCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                layoutCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 float density = getResources().getDisplayMetrics().density;
-                Log.d(TAG, "density: " + density + "; canvasSize: " + mLayoutCanvas.getWidth() + "px x " + mLayoutCanvas.getHeight() + "px");
-                Dim canvasDim = new Dim((int) (mLayoutCanvas.getWidth() / density), (int) (mLayoutCanvas.getHeight() / density));
+                Log.d(TAG, "density: " + density + "; canvasSize: " + layoutCanvas.getWidth() + "px x " + layoutCanvas.getHeight() + "px");
+                Dim canvasDim = new Dim((int) (layoutCanvas.getWidth() / density), (int) (layoutCanvas.getHeight() / density));
                 mGame = new Game(canvasDim, mImageIds.length);
                 drawCanvas();
                 drawButtons();

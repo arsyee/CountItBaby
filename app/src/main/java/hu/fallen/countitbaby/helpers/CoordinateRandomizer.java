@@ -10,9 +10,8 @@ import hu.fallen.countitbaby.model.Settings;
 
 public class CoordinateRandomizer {
 
-    // TODO Scale up/down images based on count
+    // TODO [Postponed] Scale up/down images based on count - maybe introduce scaled-up drawables to avoid programatical scaling?
     // TODO Improved algorithm to avoid overlaps
-    // TODO Increase maximum number of images to at least 20
 
     private static final String TAG = CoordinateRandomizer.class.getCanonicalName();
 
