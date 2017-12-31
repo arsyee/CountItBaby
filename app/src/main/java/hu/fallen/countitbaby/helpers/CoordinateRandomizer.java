@@ -46,11 +46,12 @@ public class CoordinateRandomizer {
         return result;
     }
 
+    public static int intBetween(int min, int max) {
+        return RANDOM.nextInt(max - min + 1) + min;
+    }
+
     public static int generateSolution() {
-        int max = Settings.instance().max();
-        int min = Settings.instance().min();
-        int solution = RANDOM.nextInt(max - min + 1) + min;
-        return solution;
+        return intBetween(Settings.instance().min(), Settings.instance().max());
     }
 
     public static int getRandom(int bound) {

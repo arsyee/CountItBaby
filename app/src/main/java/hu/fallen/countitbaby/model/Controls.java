@@ -1,8 +1,7 @@
 package hu.fallen.countitbaby.model;
 
-import android.util.Log;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import hu.fallen.countitbaby.helpers.CoordinateRandomizer;
@@ -23,20 +22,22 @@ class Controls {
     }
 
     private void clear() {
-        mVisibleButtons = new ArrayList<>();
+        mVisibleButtons = new ArrayList<>(Settings.MAXIMUM);
     }
 
     void calculateButtons(int mSolution) {
         clear();
-        int size = Settings.instance().max();
-        int required = Settings.instance().getNumButtons();
-        mVisibleButtons.add(mSolution-1);
-        while (--required > 0) {
-            int showButton = CoordinateRandomizer.getRandom(Settings.instance().max()) % size;
-            while (mVisibleButtons.contains(showButton)) showButton = (showButton + 1) % size;
-            int position = CoordinateRandomizer.getRandom(mVisibleButtons.size() + 1);
-            Log.d(TAG, "Adding " + showButton + "@" + position);
-            mVisibleButtons.add(position, showButton);
+        for (int i = Settings.instance().min(); i <= Settings.instance().max(); ++i) {
+            mVisibleButtons.add(i);
+        }
+        if (Settings.instance().isButtonOrderRandomized()) Collections.shuffle(mVisibleButtons);
+        while (mVisibleButtons.size() > Settings.instance().getNumButtons()) {
+            int removeCandidate = CoordinateRandomizer.getRandom(mVisibleButtons.size());
+            if (mSolution == mVisibleButtons.get(removeCandidate)) {
+                mVisibleButtons.remove((removeCandidate + 1) % mVisibleButtons.size());
+            } else {
+                mVisibleButtons.remove(removeCandidate);
+            }
         }
     }
 
