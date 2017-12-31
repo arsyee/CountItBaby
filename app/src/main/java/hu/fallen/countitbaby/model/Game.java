@@ -2,7 +2,6 @@ package hu.fallen.countitbaby.model;
 
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import hu.fallen.countitbaby.helpers.CoordinateRandomizer;
@@ -22,10 +21,6 @@ public class Game {
         generateQuestion();
     }
 
-    public Canvas getCanvas() {
-        return mCanvas;
-    }
-
     public boolean checkSolution(int number) {
         return number == mSolution;
     }
@@ -36,16 +31,8 @@ public class Game {
         mCanvas.generateQuestion(mSolution);
     }
 
-    /* public boolean isButtonVisible(int i) {
-        return mControls.isButtonVisible(i);
-    } */
-
     public List<Integer> getVisibleButtonIndexes() {
-        ArrayList<Integer> result = new ArrayList<>();
-        for (int i = 0; i < Settings.MAXIMUM; ++i) {
-            if (mControls.isButtonVisible(i)) result.add(0, i);
-        }
-        return result;
+        return mControls.getVisibleButtonIndexes();
     }
 
     public Dim getCoordinate(int i) {
@@ -53,6 +40,6 @@ public class Game {
     }
 
     public int getImageId() {
-        return getCanvas().getImageId();
+        return mCanvas.getImageId();
     }
 }

@@ -14,13 +14,12 @@ public class Settings {
     // when the settings are more or less final.
 
     public static final int MAXIMUM = 20;
+    public static final int IMAGE_SIZE = 50;
 
     private int lowerBound;
     private int upperBound;
-    int showButtons;
+    private int showButtons;
     private boolean randomizeButtons;
-
-    private int imageSize = 50;
 
     private static final Settings INSTANCE = new Settings();
 
@@ -48,7 +47,11 @@ public class Settings {
         this.randomizeButtons = randomizeButtons;
     }
 
-    public int getImageSize() {
-        return imageSize;
+    public int getNumButtons() {
+        return showButtons;
+    }
+
+    public boolean isButtonsRandomized() {
+        return randomizeButtons;
     }
 }

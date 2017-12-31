@@ -18,8 +18,8 @@ public class CoordinateRandomizer {
     private static final Random RANDOM = new Random();
 
     public static List<Dim> getCoordinates(int solution, Dim canvasDimensions, Dim iconDimensions) {
-        int boundX = canvasDimensions.getX() - Settings.instance().getImageSize();
-        int boundY = canvasDimensions.getY() - Settings.instance().getImageSize();
+        int boundX = canvasDimensions.getX() - Settings.IMAGE_SIZE;
+        int boundY = canvasDimensions.getY() - Settings.IMAGE_SIZE;
         int smallestCounter = 100;
         ArrayList<Dim> result = new ArrayList<>(solution);
         for (int i = 0; i < solution; ++i) {
@@ -30,8 +30,8 @@ public class CoordinateRandomizer {
                 iconX = RANDOM.nextInt(boundX);
                 iconY = RANDOM.nextInt(boundY);
                 for (int j = 0; j < i; ++j) {
-                    if (Math.abs(iconX-result.get(j).getX()) < Settings.instance().getImageSize() &&
-                        Math.abs(iconY-result.get(j).getY()) < Settings.instance().getImageSize()) {
+                    if (Math.abs(iconX-result.get(j).getX()) < Settings.IMAGE_SIZE &&
+                        Math.abs(iconY-result.get(j).getY()) < Settings.IMAGE_SIZE) {
                         // Log.d(TAG, "Collides with " + j);
                         continue outer;
                     }

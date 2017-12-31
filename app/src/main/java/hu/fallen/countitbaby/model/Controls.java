@@ -2,6 +2,9 @@ package hu.fallen.countitbaby.model;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hu.fallen.countitbaby.helpers.CoordinateRandomizer;
 
 /**
@@ -13,54 +16,31 @@ import hu.fallen.countitbaby.helpers.CoordinateRandomizer;
 class Controls {
 
     private static final String TAG = Controls.class.getCanonicalName();
-    private boolean[] mButtonVisible = null;
+    private List<Integer> mVisibleButtons = null;
 
     Controls() {
         clear();
     }
 
     private void clear() {
-        int size = Settings.instance().max();
-        if (mButtonVisible == null || mButtonVisible.length != size) {
-            mButtonVisible = new boolean[size];
-        }
-        for (int i = 0; i < size; ++i) {
-            mButtonVisible[i] = false;
-        }
+        mVisibleButtons = new ArrayList<>();
     }
 
     void calculateButtons(int mSolution) {
         clear();
-        int size = mButtonVisible.length;
-        int required = Settings.instance().showButtons;
-        mButtonVisible[mSolution-1] = true;
+        int size = Settings.instance().max();
+        int required = Settings.instance().getNumButtons();
+        mVisibleButtons.add(mSolution-1);
         while (--required > 0) {
             int showButton = CoordinateRandomizer.getRandom(Settings.instance().max()) % size;
-            while (mButtonVisible[showButton]) showButton = (showButton + 1) % size;
-            mButtonVisible[showButton] = true;
+            while (mVisibleButtons.contains(showButton)) showButton = (showButton + 1) % size;
+            int position = CoordinateRandomizer.getRandom(mVisibleButtons.size() + 1);
+            Log.d(TAG, "Adding " + showButton + "@" + position);
+            mVisibleButtons.add(position, showButton);
         }
-        Log.d(TAG,"Show buttons: " + buttonsToString());
     }
 
-    private String buttonsToString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("(");
-        int last = -1;
-        for (int i = 0; i < mButtonVisible.length; ++i) {
-            if (mButtonVisible[i]) {
-                if (last != -1) {
-                    builder.append(last).append(", ");
-                }
-                last = i;
-            }
-        }
-        builder.append(last);
-        builder.append(")");
-        return builder.toString();
-    }
-
-    boolean isButtonVisible(int i) {
-        if (i >= mButtonVisible.length) return false;
-        return mButtonVisible[i];
+    List<Integer> getVisibleButtonIndexes() {
+        return mVisibleButtons;
     }
 }
