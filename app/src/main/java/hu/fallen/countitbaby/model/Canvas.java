@@ -20,7 +20,7 @@ class Canvas {
     private static final String TAG = Canvas.class.getCanonicalName();
 
     private Dim mCanvasDim;
-    private Dim mIconsDim;
+    private Dim mIconDim;
 
     private int mSolution;
     private List<Dim> mCoordinates;
@@ -28,18 +28,16 @@ class Canvas {
     private int mImageCount;
     private int mImageId;
 
-    Canvas(Dim canvasDim, Dim iconsDim, int imageCount) {
-        Log.d(TAG, "Canvas dimensions: " + canvasDim);
-        Log.d(TAG, "Icon dimensions: " + iconsDim);
+    Canvas(Dim canvasDim, int imageCount) {
         mCanvasDim = canvasDim;
-        mIconsDim = iconsDim;
+        mIconDim = new Dim(0, 0);
         mImageCount = imageCount;
     }
 
     void generateQuestion() {
         mSolution = CoordinateRandomizer.getSolution();
         mImageId = CoordinateRandomizer.getRandom(mImageCount);
-        mCoordinates = CoordinateRandomizer.getCoordinates(mSolution, mCanvasDim, mIconsDim);
+        mCoordinates = CoordinateRandomizer.getCoordinates(mSolution, mCanvasDim, mIconDim);
     }
 
     int getSolution() {
@@ -52,7 +50,7 @@ class Canvas {
     }
 
     Dim getIconsDim() {
-        return mIconsDim;
+        return mIconDim;
     }
 
     int getImageId() {

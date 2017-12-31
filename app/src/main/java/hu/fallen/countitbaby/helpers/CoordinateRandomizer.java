@@ -14,32 +14,34 @@ public class CoordinateRandomizer {
     // TODO Improved algorithm to avoid overlaps
     // TODO Increase maximum number of images to at least 20
 
-    private static final String TAG = CoordinateRandomizer.class.toString();
+    private static final String TAG = CoordinateRandomizer.class.getCanonicalName();
 
     private static final Random RANDOM = new Random();
 
-    public static List<Dim> getCoordinates(int newSolution, Dim canvasDimensions, Dim iconDimensions) {
+    public static List<Dim> getCoordinates(int solution, Dim canvasDimensions, Dim iconDimensions) {
+        int boundX = canvasDimensions.getX() - Settings.instance().getImageSize();
+        int boundY = canvasDimensions.getY() - Settings.instance().getImageSize();
         int smallestCounter = 100;
-        ArrayList<Dim> result = new ArrayList<>(newSolution);
-        for (int i = 0; i < newSolution; ++i) {
-            int iconCenterX;
-            int iconCenterY;
+        ArrayList<Dim> result = new ArrayList<>(solution);
+        for (int i = 0; i < solution; ++i) {
+            int iconX;
+            int iconY;
             int counter = 100;
             outer: do {
-                iconCenterX = RANDOM.nextInt(canvasDimensions.getX() - iconDimensions.getX()) + iconDimensions.getX() / 2;
-                iconCenterY = RANDOM.nextInt(canvasDimensions.getY() - iconDimensions.getY()) + iconDimensions.getY() / 2;
-                // Log.d(TAG, "Random coordinates for " + i + " to " + iconCenterX + "," + iconCenterY + " (" + counter + ")");
+                iconX = RANDOM.nextInt(boundX);
+                iconY = RANDOM.nextInt(boundY);
                 for (int j = 0; j < i; ++j) {
-                    if (Math.abs(iconCenterX-result.get(j).getX()) < iconDimensions.getX() &&
-                            Math.abs(iconCenterY-result.get(j).getY()) < iconDimensions.getY()) {
-                        // Log.d(TAG,"Collides with " + j);
+                    if (Math.abs(iconX-result.get(j).getX()) < Settings.instance().getImageSize() &&
+                        Math.abs(iconY-result.get(j).getY()) < Settings.instance().getImageSize()) {
+                        // Log.d(TAG, "Collides with " + j);
                         continue outer;
                     }
                 }
                 break;
             } while (--counter > 0);
+            Log.d(TAG, "Random coordinates for " + i + " to " + iconX + "," + iconY + " (" + counter + ")");
             if (counter < smallestCounter) smallestCounter = counter;
-            result.add(new Dim(iconCenterX, iconCenterY));
+            result.add(new Dim(iconX, iconY));
         }
         Log.d(TAG, "Smallest counter: " + smallestCounter);
         return result;

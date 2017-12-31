@@ -1,13 +1,17 @@
 package hu.fallen.countitbaby.model;
 
+import android.util.Log;
+
 import hu.fallen.countitbaby.helpers.Dim;
 
 public class Game {
+    private static final String TAG = Game.class.getCanonicalName();
     private Canvas mCanvas;
     private Controls mControls;
 
-    public Game(Dim canvasDim, Dim iconsDim, int length) {
-        mCanvas = new Canvas(canvasDim, iconsDim, length);
+    public Game(Dim canvasDim, int length) {
+        Log.d(TAG, "Game(" + canvasDim + ", " + length + ")");
+        mCanvas = new Canvas(canvasDim, length);
         mControls = new Controls();
         generateQuestion();
     }

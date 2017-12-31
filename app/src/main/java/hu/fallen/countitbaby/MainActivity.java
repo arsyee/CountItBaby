@@ -4,6 +4,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -17,10 +18,11 @@ import java.util.Locale;
 
 import hu.fallen.countitbaby.helpers.Dim;
 import hu.fallen.countitbaby.model.Game;
+import hu.fallen.countitbaby.model.Settings;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.toString();
+    private static final String TAG = MainActivity.class.getCanonicalName();
 
     // TODO [Layout] Improve layout management
     // TODO [Layout]   -> dynamic placement of result buttons (maybe a grid)
@@ -40,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     List<Button> mSolutionButtons;
 
     ConstraintLayout mLayoutCanvas;
-    List<ImageView> mIcons;
+    List<ImageView> mImages;
 
     int[] mImageIds = new int[] { R.drawable.ic_house,
                                   R.drawable.ic_pretzel };
@@ -85,12 +87,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mLayoutCanvas = findViewById(R.id.cl_canvas);
-        mIcons = new ArrayList<>(mCountSolutions);
+        mImages = new ArrayList<>(mCountSolutions);
         int imageViewCount = 0;
-        for (int i = 0; i < mLayoutCanvas.getChildCount(); ++i) {
-            View nextChild = mLayoutCanvas.getChildAt(i);
-            if (!(nextChild instanceof ImageView)) continue;
-            mIcons.add((ImageView) nextChild);
+        for (int i = 0; i < Settings.MAXIMUM; ++i) {
+            ImageView image = new ImageView(this);
+            image.setBackgroundColor(0x11111111);
+            mLayoutCanvas.addView(image);
+            mImages.add(image);
             imageViewCount++;
         }
         if (imageViewCount != mCountSolutions) {
@@ -101,9 +104,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onGlobalLayout() {
                 mLayoutCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                Dim canvasDim = new Dim(mLayoutCanvas.getWidth(), mLayoutCanvas.getHeight());
-                Dim iconsDim = new Dim(mIcons.get(0).getWidth(), mIcons.get(0).getHeight());
-                mGame = new Game(canvasDim, iconsDim, mImageIds.length);
+                float density = getResources().getDisplayMetrics().density;
+                Log.d(TAG, "density: " + density + "; canvasSize: " + mLayoutCanvas.getWidth() + "px x " + mLayoutCanvas.getHeight() + "px");
+                Dim canvasDim = new Dim((int) (mLayoutCanvas.getWidth() / density), (int) (mLayoutCanvas.getHeight() / density));
+                mGame = new Game(canvasDim, mImageIds.length);
                 drawCanvas();
                 drawButtons();
             }
@@ -117,23 +121,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void drawCanvas() {
-        for (int i = 0; i < mIcons.size(); ++i) {
-            moveImage(mIcons.get(i), mGame.getCoordinate(i), mGame.getIconsDim(), mImageIds[mGame.getImageId()]);
+        for (int i = 0; i < mImages.size(); ++i) {
+            moveImage(mImages.get(i), mGame.getCoordinate(i), mImageIds[mGame.getImageId()]);
         }
     }
 
-    private void moveImage(ImageView imageView, Dim iconCoordinate, Dim iconDim, int imageId) {
+    private void moveImage(ImageView imageView, Dim iconCoordinate, int imageId) {
         if (iconCoordinate == null) {
             imageView.setVisibility(View.INVISIBLE);
             return;
         }
 
         imageView.setVisibility(View.VISIBLE);
-        Log.d(TAG, "Moving icon to " + iconCoordinate);
-        imageView.setPadding(iconCoordinate.getX() - iconDim.getX() / 2,
-                iconCoordinate.getY() - iconDim.getY() / 2, 0, 0);
-                // mCanvasWidth - (iconCoordinate.getX() + mIconWidth / 2),
-                // mCanvasHeight - (iconCoordinate.getY() + mIconHeight / 2));
+        int left = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconCoordinate.getX(), getResources().getDisplayMetrics());
+        int top = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconCoordinate.getY(), getResources().getDisplayMetrics());
+        imageView.setPadding(left, top,0,0);
         imageView.setImageResource(imageId);
     }
 
