@@ -2,6 +2,9 @@ package hu.fallen.countitbaby.model;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hu.fallen.countitbaby.helpers.CoordinateRandomizer;
 import hu.fallen.countitbaby.helpers.Dim;
 
@@ -33,8 +36,16 @@ public class Game {
         mCanvas.generateQuestion(mSolution);
     }
 
-    public boolean isButtonVisible(int i) {
+    /* public boolean isButtonVisible(int i) {
         return mControls.isButtonVisible(i);
+    } */
+
+    public List<Integer> getVisibleButtonIndexes() {
+        ArrayList<Integer> result = new ArrayList<>();
+        for (int i = 0; i < Settings.MAXIMUM; ++i) {
+            if (mControls.isButtonVisible(i)) result.add(0, i);
+        }
+        return result;
     }
 
     public Dim getCoordinate(int i) {

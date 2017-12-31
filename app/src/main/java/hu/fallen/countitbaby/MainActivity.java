@@ -115,10 +115,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void drawButtons() {
         mSolutionContainer.removeAllViews();
-        for (int i = 0; i < mSolutionButtons.size(); ++i) {
-            if (mGame.isButtonVisible(i)) {
-                mSolutionContainer.addView(mSolutionButtons.get(i));
-            }
+        for (int i : mGame.getVisibleButtonIndexes()) {
+            mSolutionContainer.addView(mSolutionButtons.get(i));
         }
     }
 
