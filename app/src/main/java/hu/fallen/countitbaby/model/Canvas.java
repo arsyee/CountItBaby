@@ -22,7 +22,6 @@ class Canvas {
     private Dim mCanvasDim;
     private Dim mIconDim;
 
-    private int mSolution;
     private List<Dim> mCoordinates;
 
     private int mImageCount;
@@ -34,14 +33,9 @@ class Canvas {
         mImageCount = imageCount;
     }
 
-    void generateQuestion() {
-        mSolution = CoordinateRandomizer.getSolution();
+    void generateQuestion(int solution) {
         mImageId = CoordinateRandomizer.getRandom(mImageCount);
-        mCoordinates = CoordinateRandomizer.getCoordinates(mSolution, mCanvasDim, mIconDim);
-    }
-
-    int getSolution() {
-        return mSolution;
+        mCoordinates = CoordinateRandomizer.getCoordinates(solution, mCanvasDim, mIconDim);
     }
 
     Dim getCoordinate(int i) {

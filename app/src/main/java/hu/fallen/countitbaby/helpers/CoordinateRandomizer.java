@@ -46,7 +46,7 @@ public class CoordinateRandomizer {
         return result;
     }
 
-    public static int getSolution() {
+    public static int generateSolution() {
         int max = Settings.instance().max();
         int min = Settings.instance().min();
         int solution = RANDOM.nextInt(max - min + 1) + min;

@@ -2,10 +2,13 @@ package hu.fallen.countitbaby.model;
 
 import android.util.Log;
 
+import hu.fallen.countitbaby.helpers.CoordinateRandomizer;
 import hu.fallen.countitbaby.helpers.Dim;
 
 public class Game {
     private static final String TAG = Game.class.getCanonicalName();
+
+    private int mSolution;
     private Canvas mCanvas;
     private Controls mControls;
 
@@ -21,12 +24,13 @@ public class Game {
     }
 
     public boolean checkSolution(int number) {
-        return number == mCanvas.getSolution();
+        return number == mSolution;
     }
 
     public void generateQuestion() {
-        mCanvas.generateQuestion();
-        mControls.calculateButtons(mCanvas.getSolution());
+        mSolution = CoordinateRandomizer.generateSolution();
+        mCanvas.generateQuestion(mSolution);
+        mControls.calculateButtons(mSolution);
     }
 
     public boolean isButtonVisible(int i) {
