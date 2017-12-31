@@ -29,8 +29,8 @@ public class Game {
 
     public void generateQuestion() {
         mSolution = CoordinateRandomizer.generateSolution();
-        mCanvas.generateQuestion(mSolution);
         mControls.calculateButtons(mSolution);
+        mCanvas.generateQuestion(mSolution);
     }
 
     public boolean isButtonVisible(int i) {
@@ -39,10 +39,6 @@ public class Game {
 
     public Dim getCoordinate(int i) {
         return mCanvas.getCoordinate(i);
-    }
-
-    public Dim getIconsDim() {
-        return mCanvas.getIconsDim();
     }
 
     public int getImageId() {

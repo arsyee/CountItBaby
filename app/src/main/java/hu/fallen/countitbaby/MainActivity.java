@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
                                   R.drawable.ic_pretzel };
 
     Toast mSolutionToast = null;
+    private LinearLayout mSolutionContainer;
 
     private class SolutionOnClickListener implements View.OnClickListener {
         private final int mNumber;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LinearLayout solutionContainer = findViewById(R.id.ll_solution_container);
+        mSolutionContainer = findViewById(R.id.ll_solution_container);
         mSolutionButtons = new ArrayList<>(Settings.MAXIMUM);
         for (int i = 0; i < Settings.MAXIMUM; ++i) {
             Button button = new Button(this);
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             button.setGravity(Gravity.CENTER);
             button.setOnClickListener(new SolutionOnClickListener(i+1));
             button.setText(String.format(Locale.getDefault(),"%d", i+1));
-            solutionContainer.addView(button);
+            mSolutionContainer.addView(button);
             mSolutionButtons.add(button);
         }
 
@@ -113,8 +114,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void drawButtons() {
+        mSolutionContainer.removeAllViews();
         for (int i = 0; i < mSolutionButtons.size(); ++i) {
-            mSolutionButtons.get(i).setVisibility(mGame.isButtonVisible(i) ? View.VISIBLE : View.GONE);
+            if (mGame.isButtonVisible(i)) {
+                mSolutionContainer.addView(mSolutionButtons.get(i));
+            }
         }
     }
 
