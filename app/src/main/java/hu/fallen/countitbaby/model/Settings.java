@@ -23,7 +23,7 @@ public class Settings {
     private static final Settings INSTANCE = new Settings();
 
     private Settings() {
-        reconfigure(10, 20, 4, true);
+        reconfigure(15, 15, 4, true);
     }
 
     public static Settings instance() {

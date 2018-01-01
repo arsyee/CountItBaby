@@ -62,15 +62,20 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             if (mGame.checkSolution(mNumber)) {
+                long startTime = System.currentTimeMillis();
                 showToast("Button clicked: " + mNumber + " - OK");
                 mGame.generateQuestion();
                 drawCanvas();
                 drawButtons();
+                Log.d(TAG, "Answer was OK, Game Area has been redrawn in " + (System.currentTimeMillis() - startTime) + "ms");
             } else {
                 showToast("Button clicked: " + mNumber + " - try again!");
             }
         }
     }
+
+    private static final int DEBUG_COLOR = 0x40808080;
+    private static final int HIGHLIGHT_COLOR = 0x40ff0000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +99,16 @@ public class MainActivity extends AppCompatActivity {
         mImages = new ArrayList<>(Settings.MAXIMUM);
         for (int i = 0; i < Settings.MAXIMUM; ++i) {
             ImageView image = new ImageView(this);
-            image.setBackgroundColor(0x11111111);
+            image.setTag(i);
+            image.setOnClickListener(new View.OnClickListener() {
+                private boolean highlighted = false;
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "image clicked: " + v.getTag());
+                    highlighted = !highlighted;
+                    v.setBackgroundColor(highlighted ? HIGHLIGHT_COLOR : DEBUG_COLOR);
+                }
+            });
             layoutCanvas.addView(image);
             mImages.add(image);
         }
@@ -122,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void drawCanvas() {
         for (int i = 0; i < mImages.size(); ++i) {
-            moveImage(mImages.get(i), mGame.getCoordinate(i), mImageIds[mGame.getImageId()]);
+            moveImage(mImages.get(i), mGame.getCoordinate(Settings.MAXIMUM - i - 1), mImageIds[mGame.getImageId()]);
         }
     }
 
@@ -137,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
         int top = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconCoordinate.Y(), getResources().getDisplayMetrics());
         imageView.setPadding(left, top,0,0);
         imageView.setImageResource(imageId);
+        imageView.setBackgroundColor(DEBUG_COLOR);
+        imageView.setTag(iconCoordinate.tag);
     }
 
     private void showToast(String msg) {

@@ -41,4 +41,6 @@ public class Dim {
         Dim other = (Dim) obj;
         return x == other.x && y == other.y;
     }
+
+    public Object tag;
 }

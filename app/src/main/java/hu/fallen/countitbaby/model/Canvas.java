@@ -30,6 +30,7 @@ class Canvas {
 
     // internal representation of the Coordinates, used for presentation
     Dim[][] mGrid = null;
+    Dim mGridMargin;
 
     // Number of possible images and ID of the currently selected one
     private int mPossibleImageCount;
@@ -43,6 +44,7 @@ class Canvas {
 
     void generateQuestion(int solution) throws GridTooSmallException {
         mCurrentImageID = RandomHelper.getRandom(mPossibleImageCount);
+        clearGrid();
         generateGrid(solution);
         mCoordinates = retrieveCoordinates();
     }
@@ -57,10 +59,18 @@ class Canvas {
         return mCurrentImageID;
     }
 
-    public void generateGrid(int solution) throws GridTooSmallException {
-        mGrid = new Dim[mCanvasDim.X() / mIconDim.X()][mCanvasDim.Y() / mIconDim.Y()];
+    private void clearGrid() {
+        int x = mCanvasDim.X() / mIconDim.X() - 1 - 4;
+        int y = mCanvasDim.Y() / mIconDim.Y() - 1 - 4;
+        mGrid = new Dim[x][y];
+        int gridSizeX = x * mIconDim.X();
+        int gridSizeY = y * mIconDim.Y();
+        mGridMargin = new Dim((mCanvasDim.X() - gridSizeX) / 2, (mCanvasDim.Y() - gridSizeY) / 2);
+        Log.d(TAG, "clearGrid created new grid: " + x + "," + y + "; margin: " + mGridMargin);
+    }
 
-        if (mGrid.length < 1 || mGrid.length * mGrid[0].length < solution) {
+    private void generateGrid(int solution) throws GridTooSmallException {
+        if (mGrid == null || mGrid.length < 1 || mGrid.length * mGrid[0].length < solution) {
             throw new GridTooSmallException(mGrid.length < 1 ? 0 : mGrid.length * mGrid[0].length);
         }
 
@@ -76,10 +86,67 @@ class Canvas {
             while (gridPosOccupied(mGrid, gridPos.X() + adjPos.X(), gridPos.Y() + adjPos.Y())) {
                 adjPos = SpiralGrid.getGridAdjustment(++iteration, inPos);
             }
+            // move new item to an adjacent cell
             gridPos.setX(gridPos.X()+adjPos.X());
             gridPos.setY(gridPos.Y()+adjPos.Y());
-            // adjust innerPosition not to overlap
+            // if it was moved, set inner position towards the original position
+            if (adjPos.X() < 0) inPos.setX(mIconDim.X() / 2);
+            if (adjPos.X() > 0) inPos.setX(mIconDim.X() / 2 * -1);
+            if (adjPos.Y() < 0) inPos.setY(mIconDim.Y() / 2);
+            if (adjPos.Y() > 0) inPos.setY(mIconDim.Y() / 2 * -1);
             mGrid[gridPos.X()][gridPos.Y()] = inPos;
+        }
+        // adjust innerPosition:s not to overlap
+        int findCollosion = -1;
+        int iteration = 0;
+        while (findCollosion != 0) {
+            iteration++;
+            Log.d(TAG,"FINDCOLLOSION LOOP ENTERED: " + iteration + " (" + findCollosion + ")");
+            if (iteration > 100) break;
+            findCollosion = 0;
+            for (int i = 0; i < mGrid.length; ++i) {
+                for (int j = 0; j < mGrid[i].length; ++j) {
+                    if (mGrid[i][j] == null) continue;
+                    if (j > 0) {
+                        if (mGrid[i][j - 1] != null && mGrid[i][j - 1].Y() > mGrid[i][j].Y()) {
+                            Log.d(TAG, "VCollosion detected: (" + i + "," + j + ") - (" + i + "," + (j - 1) + ") -> " + mGrid[i][j] + " - " + mGrid[i][j - 1]);
+                            mGrid[i][j].setY((mGrid[i][j].Y() + mGrid[i][j - 1].Y()) / 2);
+                            mGrid[i][j - 1].setY(mGrid[i][j].Y());
+                            Log.d(TAG, "VCollosion resolved: " + mGrid[i][j] + " - " + mGrid[i][j - 1]);
+                            findCollosion++;
+                        }
+                    }
+                    if (i > 0) {
+                        if (mGrid[i - 1][j] != null && mGrid[i - 1][j].X() > mGrid[i][j].X()) {
+                            Log.d(TAG, "HCollosion detected: (" + i + "," + j + ") - (" + (i - 1) + "," + j + ") -> " + mGrid[i][j] + " - " + mGrid[i - 1][j]);
+                            mGrid[i][j].setX((mGrid[i][j].X() + mGrid[i - 1][j].X()) / 2);
+                            mGrid[i - 1][j].setX(mGrid[i][j].X());
+                            Log.d(TAG, "HCollosion resolved: " + mGrid[i][j] + " - " + mGrid[i - 1][j]);
+                            findCollosion++;
+                        }
+                    }
+                    if (i > 0 && j > 0) {
+                        if (mGrid[i - 1][j - 1] != null && mGrid[i - 1][j - 1].X() > mGrid[i][j].X() && mGrid[i - 1][j - 1].Y() > mGrid[i][j].Y()) {
+                            Log.d(TAG, "DCollosion detected: (" + i + "," + j + ") - (" + (i - 1) + "," + (j - 1) + ") -> " + mGrid[i][j] + " - " + mGrid[i - 1][j - 1]);
+                            mGrid[i][j].setX((mGrid[i][j].X() + mGrid[i - 1][j - 1].X()) / 2);
+                            mGrid[i][j].setY((mGrid[i][j].Y() + mGrid[i - 1][j - 1].Y()) / 2);
+                            mGrid[i - 1][j - 1].setX(mGrid[i][j].X());
+                            Log.d(TAG, "DCollosion resolved: " + mGrid[i][j] + " - " + mGrid[i - 1][j]);
+                            findCollosion++;
+                        }
+                    }
+                    if (i > 0 && j < mGrid[i].length - 1) {
+                        if (mGrid[i - 1][j + 1] != null && mGrid[i - 1][j + 1].X() > mGrid[i][j].X() && mGrid[i - 1][j + 1].Y() > mGrid[i][j].Y()) {
+                            Log.d(TAG, "dCollosion detected: (" + i + "," + j + ") - (" + (i - 1) + "," + (j + 1) + ") -> " + mGrid[i][j] + " - " + mGrid[i - 1][j + 1]);
+                            mGrid[i][j].setX((mGrid[i][j].X() + mGrid[i - 1][j + 1].X()) / 2);
+                            mGrid[i][j].setY((mGrid[i][j].Y() + mGrid[i - 1][j + 1].Y()) / 2);
+                            mGrid[i - 1][j + 1].setX(mGrid[i][j].X());
+                            Log.d(TAG, "dCollosion resolved: " + mGrid[i][j] + " - " + mGrid[i - 1][j + 1]);
+                            findCollosion++;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -94,8 +161,11 @@ class Canvas {
         for (int i = 0; i < mGrid.length; ++i) {
             for (int j = 0; j < mGrid[i].length; ++j) {
                 if (mGrid[i][j] == null) continue;
-                Dim item = new Dim(i * mIconDim.X() + mGrid[i][j].X(), j * mIconDim.Y() + mGrid[i][j].Y());
+                Dim item = new Dim(i * mIconDim.X() + mGrid[i][j].X() + mGridMargin.X(),
+                                   j * mIconDim.Y() + mGrid[i][j].Y() + mGridMargin.Y());
                 result.add(item);
+                item.tag = new StringBuilder().append(i).append(",").append(j).append(" -> ")
+                        .append(mGrid[i][j]).toString();
             }
         }
         return result;
