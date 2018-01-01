@@ -30,13 +30,13 @@ class Canvas {
 
     Canvas(Dim canvasDim, int imageCount) {
         mCanvasDim = canvasDim;
-        mIconDim = new Dim(0, 0);
+        mIconDim = new Dim(Settings.IMAGE_SIZE, Settings.IMAGE_SIZE);
         mImageCount = imageCount;
     }
 
     void generateQuestion(int solution) {
         mImageId = RandomHelper.getRandom(mImageCount);
-        mCoordinates = getCoordinates(solution, mCanvasDim, mIconDim);
+        mCoordinates = getCoordinates(solution, mCanvasDim);
     }
 
     Dim getCoordinate(int i) {
@@ -44,17 +44,13 @@ class Canvas {
         return null;
     }
 
-    Dim getIconsDim() {
-        return mIconDim;
-    }
-
     int getImageId() {
         return mImageId;
     }
 
-    public static List<Dim> getCoordinates(int solution, Dim canvasDimensions, Dim iconDimensions) {
-        int boundX = canvasDimensions.getX() - Settings.IMAGE_SIZE;
-        int boundY = canvasDimensions.getY() - Settings.IMAGE_SIZE;
+    public List<Dim> getCoordinates(int solution, Dim canvasDimensions) {
+        int boundX = canvasDimensions.getX() - mIconDim.getX();
+        int boundY = canvasDimensions.getY() - mIconDim.getY();
         int smallestCounter = 100;
         ArrayList<Dim> result = new ArrayList<>(solution);
         for (int i = 0; i < solution; ++i) {
@@ -65,8 +61,8 @@ class Canvas {
                 iconX = RandomHelper.getRandom(boundX);
                 iconY = RandomHelper.getRandom(boundY);
                 for (int j = 0; j < i; ++j) {
-                    if (Math.abs(iconX-result.get(j).getX()) < Settings.IMAGE_SIZE &&
-                            Math.abs(iconY-result.get(j).getY()) < Settings.IMAGE_SIZE) {
+                    if (Math.abs(iconX-result.get(j).getX()) < mIconDim.getX() &&
+                            Math.abs(iconY-result.get(j).getY()) < mIconDim.getY()) {
                         // Log.d(TAG, "Collides with " + j);
                         continue outer;
                     }
