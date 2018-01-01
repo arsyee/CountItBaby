@@ -6,7 +6,6 @@ public class Settings {
 
     private static final String TAG = Settings.class.getCanonicalName();
     // TODO [Settings] Create SettingsActivity
-    // TODO [Settings]   -> upper and lower bounds for number of drawings
 
     // Settings will be hardcoded for now. I will implement SettingsActivity
     // when the settings are more or less final.
