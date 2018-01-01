@@ -43,7 +43,11 @@ class Canvas {
     }
 
     void generateQuestion(int solution) throws GridTooSmallException {
-        mCurrentImageID = RandomHelper.getRandom(mPossibleImageCount);
+        if (Settings.DEBUG_MODE) {
+            mCurrentImageID = 0;
+        } else {
+            mCurrentImageID = RandomHelper.intBetween(1, mPossibleImageCount - 1);
+        }
         clearGrid();
         generateGrid(solution);
         mCoordinates = retrieveCoordinates();
@@ -79,6 +83,7 @@ class Canvas {
                                                         mIconDim.X() / 2),
                                 RandomHelper.intBetween(mIconDim.Y() / 2 * -1,
                                                         mIconDim.Y() / 2));
+            if (Settings.NO_ADJUSTMENT) inPos = new Dim(0, 0);
             Dim gridPos = new Dim(RandomHelper.getRandom(mGrid.length),
                                   RandomHelper.getRandom(mGrid[0].length));
             Dim adjPos = new Dim(0, 0);

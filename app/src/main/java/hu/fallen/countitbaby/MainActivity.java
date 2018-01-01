@@ -1,5 +1,6 @@
 package hu.fallen.countitbaby;
 
+import android.media.MediaPlayer;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
 
     List<ImageView> mImages;
 
-    int[] mImageIds = new int[] { R.drawable.ic_house,
+    int[] mImageIds = new int[] { R.drawable.ic_rectangle,
+                                  R.drawable.ic_house,
                                   R.drawable.ic_pretzel };
 
     Toast mSolutionToast = null;
@@ -61,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             if (mGame.checkSolution(mNumber)) {
+                // TODO delay new game until sound effect plays
+                MediaPlayer.create(MainActivity.this, R.raw.correct_answer_notification_01_soundeffectsplus_com).start();
                 long startTime = System.currentTimeMillis();
                 showToast("Button clicked: " + mNumber + " - OK");
                 mGame.generateQuestion();
@@ -68,9 +72,14 @@ public class MainActivity extends AppCompatActivity {
                 drawButtons();
                 Log.d(TAG, "Answer was OK, Game Area has been redrawn in " + (System.currentTimeMillis() - startTime) + "ms");
             } else {
+                MediaPlayer.create(MainActivity.this, R.raw.wrong_answer_notification_03_soundeffectsplus_com).start();
                 showToast("Button clicked: " + mNumber + " - try again!");
             }
         }
+    }
+
+    public void debugSize(View v) {
+        Log.d(TAG, "Canvas size: " + v.getWidth() + ", " + v.getHeight());
     }
 
     private static int DEBUG_COLOR = 0x00000000;
@@ -116,6 +125,14 @@ public class MainActivity extends AppCompatActivity {
             layoutCanvas.addView(image);
             mImages.add(image);
         }
+
+        layoutCanvas.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                Log.d(TAG, "Canvas has been resized to " + left + "," + top + "," + right + "," + bottom + " from " + oldLeft + "," + oldTop + "," + oldRight + "," + oldBottom
+                + " (new size: " + v.getWidth() + "," + v.getHeight() + ")");
+            }
+        });
 
         layoutCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
