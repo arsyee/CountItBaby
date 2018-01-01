@@ -9,14 +9,14 @@ public class Dim {
         this.y = y;
     }
 
-    public int getX() {
+    public int X() {
         return x;
     }
     public void setX(int x) {
         this.x = x;
     }
 
-    public int getY() {
+    public int Y() {
         return y;
     }
     public void setY(int y) {

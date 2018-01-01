@@ -28,7 +28,11 @@ public class Game {
     public void generateQuestion() {
         mSolution = RandomHelper.generateSolution();
         mControls.calculateButtons(mSolution);
-        mCanvas.generateQuestion(mSolution);
+        try {
+            mCanvas.generateQuestion(mSolution);
+        } catch (GridTooSmallException e) {
+            // TODO Canvas reported back that the grid is too small, Settings reconfiguration needed
+        }
     }
 
     public List<Integer> getVisibleButtonIndexes() {

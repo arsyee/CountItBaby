@@ -7,7 +7,6 @@ import hu.fallen.countitbaby.model.Settings;
 public class RandomHelper {
 
     // TODO [Postponed] Scale up/down images based on count - maybe introduce scaled-up drawables to avoid programatical scaling?
-    // TODO Improved algorithm to avoid overlaps
 
     private static final String TAG = RandomHelper.class.getCanonicalName();
 

@@ -133,8 +133,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         imageView.setVisibility(View.VISIBLE);
-        int left = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconCoordinate.getX(), getResources().getDisplayMetrics());
-        int top = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconCoordinate.getY(), getResources().getDisplayMetrics());
+        int left = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconCoordinate.X(), getResources().getDisplayMetrics());
+        int top = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconCoordinate.Y(), getResources().getDisplayMetrics());
         imageView.setPadding(left, top,0,0);
         imageView.setImageResource(imageId);
     }
