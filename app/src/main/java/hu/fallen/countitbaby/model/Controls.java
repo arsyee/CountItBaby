@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import hu.fallen.countitbaby.helpers.CoordinateRandomizer;
+import hu.fallen.countitbaby.helpers.RandomHelper;
 
 /**
  * Class represents the Controls, i.e. the Buttons to select the Solution.
@@ -32,7 +32,7 @@ class Controls {
         }
         if (Settings.instance().isButtonOrderRandomized()) Collections.shuffle(mVisibleButtons);
         while (mVisibleButtons.size() > Settings.instance().getNumButtons()) {
-            int removeCandidate = CoordinateRandomizer.getRandom(mVisibleButtons.size());
+            int removeCandidate = RandomHelper.getRandom(mVisibleButtons.size());
             if (mSolution == mVisibleButtons.get(removeCandidate)) {
                 mVisibleButtons.remove((removeCandidate + 1) % mVisibleButtons.size());
             } else {

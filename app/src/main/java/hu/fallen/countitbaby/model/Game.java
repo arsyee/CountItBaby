@@ -4,7 +4,7 @@ import android.util.Log;
 
 import java.util.List;
 
-import hu.fallen.countitbaby.helpers.CoordinateRandomizer;
+import hu.fallen.countitbaby.helpers.RandomHelper;
 import hu.fallen.countitbaby.helpers.Dim;
 
 public class Game {
@@ -26,7 +26,7 @@ public class Game {
     }
 
     public void generateQuestion() {
-        mSolution = CoordinateRandomizer.generateSolution();
+        mSolution = RandomHelper.generateSolution();
         mControls.calculateButtons(mSolution);
         mCanvas.generateQuestion(mSolution);
     }

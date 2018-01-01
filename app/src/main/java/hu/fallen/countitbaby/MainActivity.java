@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     // TODO [Layout] Improve layout management
     // TODO [Layout]   -> dynamic placement of result buttons (maybe a grid)
     // TODO [Layout]   -> place buttons before calculating image positions (resizing the button grid affects the canvas size)
-    // TODO [Layout]   -> lower limit for button size (should be easy to press)
+    // TODO [Layout]   -> lower limit for button size (should be easy to press) - this will be hardcoded to 5 per row for now
     // TODO [Visual] Polish
     // TODO [Visual]   -> Have a background
     // TODO [Visual]   -> Have music and sound effects for win and loose (should be possible to turn these off separately)

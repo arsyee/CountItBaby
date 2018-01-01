@@ -2,9 +2,10 @@ package hu.fallen.countitbaby.model;
 
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import hu.fallen.countitbaby.helpers.CoordinateRandomizer;
+import hu.fallen.countitbaby.helpers.RandomHelper;
 import hu.fallen.countitbaby.helpers.Dim;
 
 /**
@@ -34,8 +35,8 @@ class Canvas {
     }
 
     void generateQuestion(int solution) {
-        mImageId = CoordinateRandomizer.getRandom(mImageCount);
-        mCoordinates = CoordinateRandomizer.getCoordinates(solution, mCanvasDim, mIconDim);
+        mImageId = RandomHelper.getRandom(mImageCount);
+        mCoordinates = getCoordinates(solution, mCanvasDim, mIconDim);
     }
 
     Dim getCoordinate(int i) {
@@ -49,5 +50,34 @@ class Canvas {
 
     int getImageId() {
         return mImageId;
+    }
+
+    public static List<Dim> getCoordinates(int solution, Dim canvasDimensions, Dim iconDimensions) {
+        int boundX = canvasDimensions.getX() - Settings.IMAGE_SIZE;
+        int boundY = canvasDimensions.getY() - Settings.IMAGE_SIZE;
+        int smallestCounter = 100;
+        ArrayList<Dim> result = new ArrayList<>(solution);
+        for (int i = 0; i < solution; ++i) {
+            int iconX;
+            int iconY;
+            int counter = 100;
+            outer: do {
+                iconX = RandomHelper.getRandom(boundX);
+                iconY = RandomHelper.getRandom(boundY);
+                for (int j = 0; j < i; ++j) {
+                    if (Math.abs(iconX-result.get(j).getX()) < Settings.IMAGE_SIZE &&
+                            Math.abs(iconY-result.get(j).getY()) < Settings.IMAGE_SIZE) {
+                        // Log.d(TAG, "Collides with " + j);
+                        continue outer;
+                    }
+                }
+                break;
+            } while (--counter > 0);
+            Log.d(TAG, "Random coordinates for " + i + " to " + iconX + "," + iconY + " (" + counter + ")");
+            if (counter < smallestCounter) smallestCounter = counter;
+            result.add(new Dim(iconX, iconY));
+        }
+        Log.d(TAG, "Smallest counter: " + smallestCounter);
+        return result;
     }
 }
