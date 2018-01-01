@@ -74,13 +74,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private static final int DEBUG_COLOR = 0x40808080;
-    private static final int HIGHLIGHT_COLOR = 0x40ff0000;
+    private static int DEBUG_COLOR = 0x00000000;
+    private static int HIGHLIGHT_COLOR = 0x00000000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (Settings.DEBUG_MODE) {
+            DEBUG_COLOR = 0x40808080;
+            HIGHLIGHT_COLOR = 0x40ff0000;
+        }
 
         mSolutionContainer = findViewById(R.id.ll_solution_container);
         mSolutionButtons = new ArrayList<>(Settings.MAXIMUM);
@@ -104,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 private boolean highlighted = false;
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "image clicked: " + v.getTag());
+                    Log.d(TAG, "image clicked: " + v.getTag() + " - " + v.getPaddingLeft() + "," + v.getPaddingTop());
                     highlighted = !highlighted;
                     v.setBackgroundColor(highlighted ? HIGHLIGHT_COLOR : DEBUG_COLOR);
                 }
@@ -156,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showToast(String msg) {
+        if (!Settings.DEBUG_MODE) return;
         if (mSolutionToast != null) mSolutionToast.cancel();
         mSolutionToast = Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG);
         mSolutionToast.show();

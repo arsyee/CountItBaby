@@ -20,10 +20,12 @@ public class Settings {
     private int showButtons; // number of buttons shown
     private boolean mButtonOrderRandomized;
 
+    public static final boolean DEBUG_MODE = false;
+
     private static final Settings INSTANCE = new Settings();
 
     private Settings() {
-        reconfigure(15, 15, 4, true);
+        reconfigure(1, 6, 6, false);
     }
 
     public static Settings instance() {

@@ -60,8 +60,8 @@ class Canvas {
     }
 
     private void clearGrid() {
-        int x = mCanvasDim.X() / mIconDim.X() - 1 - 4;
-        int y = mCanvasDim.Y() / mIconDim.Y() - 1 - 4;
+        int x = mCanvasDim.X() / mIconDim.X() - 1;
+        int y = mCanvasDim.Y() / mIconDim.Y() - 1;
         mGrid = new Dim[x][y];
         int gridSizeX = x * mIconDim.X();
         int gridSizeY = y * mIconDim.Y();
@@ -97,57 +97,46 @@ class Canvas {
             mGrid[gridPos.X()][gridPos.Y()] = inPos;
         }
         // adjust innerPosition:s not to overlap
-        int findCollosion = -1;
+        int collosionsFound = -1;
         int iteration = 0;
-        while (findCollosion != 0) {
+        while (collosionsFound != 0) {
             iteration++;
-            Log.d(TAG,"FINDCOLLOSION LOOP ENTERED: " + iteration + " (" + findCollosion + ")");
+            Log.d(TAG,"collosionsFound loop entered: " + iteration + " (" + collosionsFound + ")");
             if (iteration > 100) break;
-            findCollosion = 0;
+            collosionsFound = 0;
             for (int i = 0; i < mGrid.length; ++i) {
                 for (int j = 0; j < mGrid[i].length; ++j) {
-                    if (mGrid[i][j] == null) continue;
-                    if (j > 0) {
-                        if (mGrid[i][j - 1] != null && mGrid[i][j - 1].Y() > mGrid[i][j].Y()) {
-                            Log.d(TAG, "VCollosion detected: (" + i + "," + j + ") - (" + i + "," + (j - 1) + ") -> " + mGrid[i][j] + " - " + mGrid[i][j - 1]);
-                            mGrid[i][j].setY((mGrid[i][j].Y() + mGrid[i][j - 1].Y()) / 2);
-                            mGrid[i][j - 1].setY(mGrid[i][j].Y());
-                            Log.d(TAG, "VCollosion resolved: " + mGrid[i][j] + " - " + mGrid[i][j - 1]);
-                            findCollosion++;
-                        }
-                    }
-                    if (i > 0) {
-                        if (mGrid[i - 1][j] != null && mGrid[i - 1][j].X() > mGrid[i][j].X()) {
-                            Log.d(TAG, "HCollosion detected: (" + i + "," + j + ") - (" + (i - 1) + "," + j + ") -> " + mGrid[i][j] + " - " + mGrid[i - 1][j]);
-                            mGrid[i][j].setX((mGrid[i][j].X() + mGrid[i - 1][j].X()) / 2);
-                            mGrid[i - 1][j].setX(mGrid[i][j].X());
-                            Log.d(TAG, "HCollosion resolved: " + mGrid[i][j] + " - " + mGrid[i - 1][j]);
-                            findCollosion++;
-                        }
-                    }
-                    if (i > 0 && j > 0) {
-                        if (mGrid[i - 1][j - 1] != null && mGrid[i - 1][j - 1].X() > mGrid[i][j].X() && mGrid[i - 1][j - 1].Y() > mGrid[i][j].Y()) {
-                            Log.d(TAG, "DCollosion detected: (" + i + "," + j + ") - (" + (i - 1) + "," + (j - 1) + ") -> " + mGrid[i][j] + " - " + mGrid[i - 1][j - 1]);
-                            mGrid[i][j].setX((mGrid[i][j].X() + mGrid[i - 1][j - 1].X()) / 2);
-                            mGrid[i][j].setY((mGrid[i][j].Y() + mGrid[i - 1][j - 1].Y()) / 2);
-                            mGrid[i - 1][j - 1].setX(mGrid[i][j].X());
-                            Log.d(TAG, "DCollosion resolved: " + mGrid[i][j] + " - " + mGrid[i - 1][j]);
-                            findCollosion++;
-                        }
-                    }
-                    if (i > 0 && j < mGrid[i].length - 1) {
-                        if (mGrid[i - 1][j + 1] != null && mGrid[i - 1][j + 1].X() > mGrid[i][j].X() && mGrid[i - 1][j + 1].Y() > mGrid[i][j].Y()) {
-                            Log.d(TAG, "dCollosion detected: (" + i + "," + j + ") - (" + (i - 1) + "," + (j + 1) + ") -> " + mGrid[i][j] + " - " + mGrid[i - 1][j + 1]);
-                            mGrid[i][j].setX((mGrid[i][j].X() + mGrid[i - 1][j + 1].X()) / 2);
-                            mGrid[i][j].setY((mGrid[i][j].Y() + mGrid[i - 1][j + 1].Y()) / 2);
-                            mGrid[i - 1][j + 1].setX(mGrid[i][j].X());
-                            Log.d(TAG, "dCollosion resolved: " + mGrid[i][j] + " - " + mGrid[i - 1][j + 1]);
-                            findCollosion++;
+                    Dim current = mGrid[i][j];
+                    if (current == null) continue;
+                    for (int iOffset = -1; iOffset <= 1; ++iOffset) {
+                        for (int jOffset = -1; jOffset <= 1; ++jOffset) {
+                            if (resolveCollosionIfNeeded(i, j, i + iOffset, j + jOffset)) collosionsFound++;
                         }
                     }
                 }
             }
         }
+    }
+
+    private boolean resolveCollosionIfNeeded(int i, int j, int otherI, int otherJ) {
+        boolean changed = false;
+        Dim current  = mGrid[i][j];
+        if (i == otherI && j == otherJ) return false;
+        if (otherI < 0 || otherJ < 0) return false;
+        if (otherI >= mGrid.length || otherJ >= mGrid[i].length) return false;
+        Dim other = mGrid[otherI][otherJ];
+        if (other == null) return changed;
+        if (otherI < i && other.X() > current.X() || otherI > i && other.X() < current.X()) {
+            current.setX((current.X() + other.X()) / 2);
+            other.setX(current.X());
+            changed = true;
+        }
+        if (otherJ < j && other.Y() > current.Y() || otherJ > j && other.Y() < current.Y()) {
+            current.setY((current.Y() + other.Y()) / 2);
+            other.setY(current.Y());
+            changed = true;
+        }
+        return changed;
     }
 
     private static boolean gridPosOccupied(Dim[][] grid, int x, int y) {
@@ -171,32 +160,4 @@ class Canvas {
         return result;
     }
 
-    public List<Dim> getCoordinates_old(int solution, Dim canvasDimensions) {
-        int boundX = canvasDimensions.X() - mIconDim.X();
-        int boundY = canvasDimensions.Y() - mIconDim.Y();
-        int smallestCounter = 100;
-        ArrayList<Dim> result = new ArrayList<>(solution);
-        for (int i = 0; i < solution; ++i) {
-            int iconX;
-            int iconY;
-            int counter = 100;
-            outer: do {
-                iconX = RandomHelper.getRandom(boundX);
-                iconY = RandomHelper.getRandom(boundY);
-                for (int j = 0; j < i; ++j) {
-                    if (Math.abs(iconX-result.get(j).X()) < mIconDim.X() &&
-                            Math.abs(iconY-result.get(j).Y()) < mIconDim.Y()) {
-                        // Log.d(TAG, "Collides with " + j);
-                        continue outer;
-                    }
-                }
-                break;
-            } while (--counter > 0);
-            Log.d(TAG, "Random coordinates for " + i + " to " + iconX + "," + iconY + " (" + counter + ")");
-            if (counter < smallestCounter) smallestCounter = counter;
-            result.add(new Dim(iconX, iconY));
-        }
-        Log.d(TAG, "Smallest counter: " + smallestCounter);
-        return result;
-    }
 }
