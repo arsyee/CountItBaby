@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     // TODO [Layout]   -> lower limit for button size (should be easy to press) - this will be hardcoded to 5 per row for now
     // TODO [Visual] Polish
     // TODO [Visual]   -> Have a background
-    // TODO [Visual]   -> Have music and sound effects for win and loose (should be possible to turn these off separately)
     // TODO [Visual]   -> Animation for win and loose
     // TODO [Visual]   -> Nicer button visuals
     // TODO [Visual]   -> Can we animate SVG?
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             if (mGame.checkSolution(mNumber)) {
                 // TODO delay new game until sound effect plays
-                MediaPlayer.create(MainActivity.this, R.raw.correct_answer_notification_01_soundeffectsplus_com).start();
+                playSound(R.raw.correct_answer_notification_01_soundeffectsplus_com);
                 long startTime = System.currentTimeMillis();
                 showToast("Button clicked: " + mNumber + " - OK");
                 mGame.generateQuestion();
@@ -72,9 +71,15 @@ public class MainActivity extends AppCompatActivity {
                 drawButtons();
                 Log.d(TAG, "Answer was OK, Game Area has been redrawn in " + (System.currentTimeMillis() - startTime) + "ms");
             } else {
-                MediaPlayer.create(MainActivity.this, R.raw.wrong_answer_notification_03_soundeffectsplus_com).start();
+                playSound(R.raw.wrong_answer_notification_03_soundeffectsplus_com);
                 showToast("Button clicked: " + mNumber + " - try again!");
             }
+        }
+    }
+
+    private void playSound(int soundResource) {
+        if (Settings.MUSIC_ON) {
+            MediaPlayer.create(MainActivity.this, soundResource).start();
         }
     }
 
@@ -131,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 Log.d(TAG, "Canvas has been resized to " + left + "," + top + "," + right + "," + bottom + " from " + oldLeft + "," + oldTop + "," + oldRight + "," + oldBottom
                 + " (new size: " + v.getWidth() + "," + v.getHeight() + ")");
+                // TODO resize Model's Canvas when this happens
+                // what's the difference between these two listeners and why am I using the other?
             }
         });
 

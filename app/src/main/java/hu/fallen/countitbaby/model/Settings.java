@@ -19,6 +19,10 @@ public class Settings {
     private int showButtons; // number of buttons shown
     private boolean mButtonOrderRandomized;
 
+    // Sound options
+    public static boolean SOUND_ON = true;
+    public static boolean MUSIC_ON = true;
+
     public static final boolean NO_ADJUSTMENT = false;
     public static final boolean DEBUG_MODE = false;
 
