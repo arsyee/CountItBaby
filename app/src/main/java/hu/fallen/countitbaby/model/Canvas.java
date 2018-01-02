@@ -29,8 +29,8 @@ class Canvas {
     private List<Dim> mCoordinates;
 
     // internal representation of the Coordinates, used for presentation
-    Dim[][] mGrid = null;
-    Dim mGridMargin;
+    private Dim[][] mGrid = null;
+    private Dim mGridMargin;
 
     // Number of possible images and ID of the currently selected one
     private int mPossibleImageCount;
@@ -70,12 +70,12 @@ class Canvas {
         int gridSizeX = x * mIconDim.X();
         int gridSizeY = y * mIconDim.Y();
         mGridMargin = new Dim((mCanvasDim.X() - gridSizeX) / 2, (mCanvasDim.Y() - gridSizeY) / 2);
-        Log.d(TAG, "clearGrid created new grid: " + x + "," + y + "; margin: " + mGridMargin);
+        Log.d(TAG, String.format("clearGrid created new grid: %d,%d; margin: %s", x, y, mGridMargin));
     }
 
     private void generateGrid(int solution) throws GridTooSmallException {
         if (mGrid == null || mGrid.length < 1 || mGrid.length * mGrid[0].length < solution) {
-            throw new GridTooSmallException(mGrid.length < 1 ? 0 : mGrid.length * mGrid[0].length);
+            throw new GridTooSmallException(mGrid == null || mGrid.length < 1 ? 0 : mGrid.length * mGrid[0].length);
         }
 
         while (solution-- > 0) {
@@ -106,7 +106,7 @@ class Canvas {
         int iteration = 0;
         while (collosionsFound != 0) {
             iteration++;
-            Log.d(TAG,"collosionsFound loop entered: " + iteration + " (" + collosionsFound + ")");
+            Log.d(TAG, String.format("collosionsFound loop entered: %d (%d)", iteration, collosionsFound));
             if (iteration > 100) break;
             collosionsFound = 0;
             for (int i = 0; i < mGrid.length; ++i) {
@@ -130,7 +130,8 @@ class Canvas {
         if (otherI < 0 || otherJ < 0) return false;
         if (otherI >= mGrid.length || otherJ >= mGrid[i].length) return false;
         Dim other = mGrid[otherI][otherJ];
-        if (other == null) return changed;
+        if (other == null) //noinspection ConstantConditions
+            return changed;
         if (otherI < i && other.X() > current.X() || otherI > i && other.X() < current.X()) {
             current.setX((current.X() + other.X()) / 2);
             other.setX(current.X());
@@ -144,6 +145,7 @@ class Canvas {
         return changed;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     private static boolean gridPosOccupied(Dim[][] grid, int x, int y) {
         if (x < 0 || y < 0) return true;
         if (x >= grid.length || y >= grid[x].length ) return true;
@@ -151,15 +153,14 @@ class Canvas {
     }
 
     private List<Dim> retrieveCoordinates() {
-        ArrayList<Dim> result = new ArrayList<Dim>();
+        ArrayList<Dim> result = new ArrayList<>();
         for (int i = 0; i < mGrid.length; ++i) {
             for (int j = 0; j < mGrid[i].length; ++j) {
                 if (mGrid[i][j] == null) continue;
                 Dim item = new Dim(i * mIconDim.X() + mGrid[i][j].X() + mGridMargin.X(),
                                    j * mIconDim.Y() + mGrid[i][j].Y() + mGridMargin.Y());
                 result.add(item);
-                item.tag = new StringBuilder().append(i).append(",").append(j).append(" -> ")
-                        .append(mGrid[i][j]).toString();
+                item.tag = String.format("%d,%d -> %s", i, j, mGrid[i][j]);
             }
         }
         return result;

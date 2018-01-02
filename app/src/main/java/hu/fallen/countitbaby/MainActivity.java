@@ -1,5 +1,6 @@
 package hu.fallen.countitbaby;
 
+import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -115,14 +116,14 @@ public class MainActivity extends AppCompatActivity {
                 // TODO delay new game until sound effect plays
                 playSound(R.raw.correct_answer_notification_01_soundeffectsplus_com);
                 long startTime = System.currentTimeMillis();
-                showToast("Button clicked: " + mNumber + " - OK");
+                showToast(String.format("Button clicked: %d - OK", mNumber));
                 mGame.generateQuestion();
                 drawCanvas();
                 drawButtons();
-                Log.i(TAG, "Answer (" + mNumber + ") OK, Game Area has been redrawn in " + (System.currentTimeMillis() - startTime) + "ms");
+                Log.i(TAG, String.format("Answer (%d) OK, Game Area has been redrawn in %dms", mNumber, (System.currentTimeMillis() - startTime)));
             } else {
                 playSound(R.raw.wrong_answer_notification_03_soundeffectsplus_com);
-                showToast("Button clicked: " + mNumber + " - try again!");
+                showToast(String.format("Button clicked: %d - try again!", mNumber));
             }
         }
     }
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         public void onGlobalLayout() {
             mViewGroup.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             float density = getResources().getDisplayMetrics().density;
-            Log.d(TAG, "density: " + density + "; canvasSize: " + mViewGroup.getWidth() + "px x " + mViewGroup.getHeight() + "px");
+            Log.d(TAG, String.format("density: %f; canvasSize: %dpx,%dpx", density, mViewGroup.getWidth(), mViewGroup.getHeight()));
             Dim canvasDim = new Dim((int) (mViewGroup.getWidth() / density), (int) (mViewGroup.getHeight() / density));
             mGame = new Game(canvasDim, mImageIds.length);
             drawCanvas();
@@ -149,8 +150,8 @@ public class MainActivity extends AppCompatActivity {
     private class CanvasOnLayoutChangeListener implements View.OnLayoutChangeListener {
         @Override
         public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-            Log.d(TAG, "Canvas has been resized to " + left + "," + top + "," + right + "," + bottom + " from " + oldLeft + "," + oldTop + "," + oldRight + "," + oldBottom
-                    + " (new size: " + v.getWidth() + "," + v.getHeight() + ")");
+            Log.d(TAG, String.format("Canvas has been resized to %d,%d,%d,%d from %d,%d,%d,%d - new size: %d,%d",
+                    left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom, v.getWidth(), v.getHeight()));
             // TODO resize Model's Canvas when this happens
             // what's the difference between these two listeners and why am I using the other?
         }
@@ -161,14 +162,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "image clicked: " + v.getTag() + " - " + v.getPaddingLeft() + "," + v.getPaddingTop());
+            Log.d(TAG, String.format("image clicked: %s, padding: %d,%d", v.getTag(), v.getPaddingLeft(), v.getPaddingTop()));
             highlighted = !highlighted;
             v.setBackgroundColor(highlighted ? HIGHLIGHT_COLOR : DEBUG_COLOR);
         }
     }
 
     public void canvasOnClick(View v) {
-        Log.d(TAG, "Canvas size: " + v.getWidth() + ", " + v.getHeight());
+        Log.d(TAG, String.format("Canvas size: %d,%d", v.getWidth(), v.getHeight()));
     }
 
     // Helper functions
@@ -223,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
         button.setGravity(Gravity.CENTER);
         button.setOnClickListener(new SolutionOnClickListener(i+1));
-        button.setText(String.format(Locale.getDefault(),"%d", i+1));
+        button.setText(String.format("%d", i+1));
         return button;
     }
 

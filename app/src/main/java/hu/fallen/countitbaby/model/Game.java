@@ -15,7 +15,7 @@ public class Game {
     private Controls mControls;
 
     public Game(Dim canvasDim, int length) {
-        Log.d(TAG, "Game(" + canvasDim + ", " + length + ")");
+        Log.d(TAG, String.format("Game(%s, %d)", canvasDim, length));
         mCanvas = new Canvas(canvasDim, length);
         mControls = new Controls();
         generateQuestion();
