@@ -29,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getCanonicalName();
 
+    // TODO [Experience] Add more game modes
+    // TODO [Experience]   -> Add a counter (collect bronze-silver-gold-diamond coins in the top row)
+    // TODO [Experience]   -> Different effects when 5 coins collected
+    // TODO [Settings]   -> Auto-advance on 5 coins (increment number of possibilities)
     // TODO [Layout] Improve layout management
     // TODO [Layout]   -> dynamic placement of result buttons (maybe a grid)
     // TODO [Layout]   -> place buttons before calculating image positions (resizing the button grid affects the canvas size)
