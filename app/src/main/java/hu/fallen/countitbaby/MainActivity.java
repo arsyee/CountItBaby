@@ -1,6 +1,7 @@
 package hu.fallen.countitbaby;
 
 import android.media.MediaPlayer;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,16 +41,65 @@ public class MainActivity extends AppCompatActivity {
 
     Game mGame;
 
-    List<Button> mSolutionButtons;
-
-    List<ImageView> mImages;
-
-    int[] mImageIds = new int[] { R.drawable.ic_rectangle,
-                                  R.drawable.ic_house,
-                                  R.drawable.ic_pretzel };
-
-    Toast mSolutionToast = null;
+    private Toast mSolutionToast = null;
     private LinearLayout mSolutionContainer;
+    private List<Button> mSolutionButtons;
+    private List<ImageView> mImages;
+
+    private int[] mImageIds = new int[] { R.drawable.ic_rectangle,
+                                          R.drawable.ic_house,
+                                          R.drawable.ic_pretzel };
+
+    // TODO How to separate out DEBUG code like Debug and Release build?
+    private static int DEBUG_COLOR = 0x00000000;
+    private static int HIGHLIGHT_COLOR = 0x00000000;
+
+    // Life-cycle handlers
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        if (Settings.DEBUG_MODE) {
+            DEBUG_COLOR = 0x40808080;
+            HIGHLIGHT_COLOR = 0x40ff0000;
+        }
+
+        mSolutionContainer = findViewById(R.id.ll_solution_container);
+        mSolutionButtons = new ArrayList<>(Settings.MAXIMUM);
+        for (int i = 0; i < Settings.MAXIMUM; ++i) {
+            Button button = createSolutionButton(i);
+            mSolutionContainer.addView(button);
+            mSolutionButtons.add(button);
+        }
+
+        final ConstraintLayout layoutCanvas = findViewById(R.id.cl_canvas);
+        mImages = new ArrayList<>(Settings.MAXIMUM);
+        for (int i = 0; i < Settings.MAXIMUM; ++i) {
+            ImageView image = createImage(i);
+            layoutCanvas.addView(image);
+            mImages.add(image);
+        }
+        layoutCanvas.addOnLayoutChangeListener(new CanvasOnLayoutChangeListener());
+        layoutCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new CanvasOnGlobalLayoutListener(layoutCanvas));
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+    }
+
+    // Event handlers
 
     private class SolutionOnClickListener implements View.OnClickListener {
         private final int mNumber;
@@ -69,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 mGame.generateQuestion();
                 drawCanvas();
                 drawButtons();
-                Log.d(TAG, "Answer was OK, Game Area has been redrawn in " + (System.currentTimeMillis() - startTime) + "ms");
+                Log.i(TAG, "Answer (" + mNumber + ") OK, Game Area has been redrawn in " + (System.currentTimeMillis() - startTime) + "ms");
             } else {
                 playSound(R.raw.wrong_answer_notification_03_soundeffectsplus_com);
                 showToast("Button clicked: " + mNumber + " - try again!");
@@ -77,97 +127,51 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void playSound(int soundResource) {
-        if (Settings.MUSIC_ON) {
-            MediaPlayer.create(MainActivity.this, soundResource).start();
+    private class CanvasOnGlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
+        private final ViewGroup mViewGroup;
+
+        private CanvasOnGlobalLayoutListener(ViewGroup viewGroup) {
+            mViewGroup = viewGroup;
+        }
+
+        @Override
+        public void onGlobalLayout() {
+            mViewGroup.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            float density = getResources().getDisplayMetrics().density;
+            Log.d(TAG, "density: " + density + "; canvasSize: " + mViewGroup.getWidth() + "px x " + mViewGroup.getHeight() + "px");
+            Dim canvasDim = new Dim((int) (mViewGroup.getWidth() / density), (int) (mViewGroup.getHeight() / density));
+            mGame = new Game(canvasDim, mImageIds.length);
+            drawCanvas();
+            drawButtons();
         }
     }
 
-    public void debugSize(View v) {
+    private class CanvasOnLayoutChangeListener implements View.OnLayoutChangeListener {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+            Log.d(TAG, "Canvas has been resized to " + left + "," + top + "," + right + "," + bottom + " from " + oldLeft + "," + oldTop + "," + oldRight + "," + oldBottom
+                    + " (new size: " + v.getWidth() + "," + v.getHeight() + ")");
+            // TODO resize Model's Canvas when this happens
+            // what's the difference between these two listeners and why am I using the other?
+        }
+    }
+
+    private class ImageOnClickListener implements View.OnClickListener {
+        private boolean highlighted = false;
+
+        @Override
+        public void onClick(View v) {
+            Log.d(TAG, "image clicked: " + v.getTag() + " - " + v.getPaddingLeft() + "," + v.getPaddingTop());
+            highlighted = !highlighted;
+            v.setBackgroundColor(highlighted ? HIGHLIGHT_COLOR : DEBUG_COLOR);
+        }
+    }
+
+    public void canvasOnClick(View v) {
         Log.d(TAG, "Canvas size: " + v.getWidth() + ", " + v.getHeight());
     }
 
-    private static int DEBUG_COLOR = 0x00000000;
-    private static int HIGHLIGHT_COLOR = 0x00000000;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        if (Settings.DEBUG_MODE) {
-            DEBUG_COLOR = 0x40808080;
-            HIGHLIGHT_COLOR = 0x40ff0000;
-        }
-
-        mSolutionContainer = findViewById(R.id.ll_solution_container);
-        mSolutionButtons = new ArrayList<>(Settings.MAXIMUM);
-        for (int i = 0; i < Settings.MAXIMUM; ++i) {
-            Button button = new Button(this);
-            button.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
-            button.setGravity(Gravity.CENTER);
-            button.setOnClickListener(new SolutionOnClickListener(i+1));
-            button.setText(String.format(Locale.getDefault(),"%d", i+1));
-            mSolutionContainer.addView(button);
-            mSolutionButtons.add(button);
-        }
-
-        final ConstraintLayout layoutCanvas = findViewById(R.id.cl_canvas);
-        mImages = new ArrayList<>(Settings.MAXIMUM);
-        for (int i = 0; i < Settings.MAXIMUM; ++i) {
-            ImageView image = new ImageView(this);
-            image.setTag(i);
-            image.setOnClickListener(new View.OnClickListener() {
-                private boolean highlighted = false;
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "image clicked: " + v.getTag() + " - " + v.getPaddingLeft() + "," + v.getPaddingTop());
-                    highlighted = !highlighted;
-                    v.setBackgroundColor(highlighted ? HIGHLIGHT_COLOR : DEBUG_COLOR);
-                }
-            });
-            layoutCanvas.addView(image);
-            mImages.add(image);
-        }
-
-        layoutCanvas.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                Log.d(TAG, "Canvas has been resized to " + left + "," + top + "," + right + "," + bottom + " from " + oldLeft + "," + oldTop + "," + oldRight + "," + oldBottom
-                + " (new size: " + v.getWidth() + "," + v.getHeight() + ")");
-                // TODO resize Model's Canvas when this happens
-                // what's the difference between these two listeners and why am I using the other?
-            }
-        });
-
-        layoutCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                layoutCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                float density = getResources().getDisplayMetrics().density;
-                Log.d(TAG, "density: " + density + "; canvasSize: " + layoutCanvas.getWidth() + "px x " + layoutCanvas.getHeight() + "px");
-                Dim canvasDim = new Dim((int) (layoutCanvas.getWidth() / density), (int) (layoutCanvas.getHeight() / density));
-                mGame = new Game(canvasDim, mImageIds.length);
-                drawCanvas();
-                drawButtons();
-            }
-        });
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
-    }
+    // Helper functions
 
     private void drawButtons() {
         mSolutionContainer.removeAllViews();
@@ -197,10 +201,38 @@ public class MainActivity extends AppCompatActivity {
         imageView.setTag(iconCoordinate.tag);
     }
 
+    private void playSound(int soundResource) {
+        // TODO Create two AudioPlayers to play Music and FX separately? see also: https://stackoverflow.com/a/18255129/1409960
+        // TODO will the music continue to play if I navigate to another Activity?
+        if (Settings.MUSIC_ON) {
+            MediaPlayer.create(MainActivity.this, soundResource).start();
+        }
+    }
+
     private void showToast(String msg) {
         if (!Settings.DEBUG_MODE) return;
         if (mSolutionToast != null) mSolutionToast.cancel();
         mSolutionToast = Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG);
         mSolutionToast.show();
     }
+
+    @NonNull
+    private Button createSolutionButton(int i) {
+        Button button = new Button(this);
+        button.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
+        button.setGravity(Gravity.CENTER);
+        button.setOnClickListener(new SolutionOnClickListener(i+1));
+        button.setText(String.format(Locale.getDefault(),"%d", i+1));
+        return button;
+    }
+
+    @NonNull
+    private ImageView createImage(int i) {
+        ImageView image = new ImageView(this);
+        image.setTag(i);
+        image.setOnClickListener(new ImageOnClickListener());
+        return image;
+    }
+
 }
